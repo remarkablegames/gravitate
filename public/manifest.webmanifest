@@ -1,7 +1,7 @@
 {
   "name": "Gravitate",
   "short_name": "Gravitate",
-  "description": "Gravitate",
+  "description": "🧲 Guide a robot through platformer puzzles by shifting gravity in four directions. Roll across walls, walk on ceilings, and use the room itself to find your way out.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#000000",

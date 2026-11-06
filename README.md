@@ -7,7 +7,7 @@
 [![release](https://img.shields.io/github/v/release/remarkablegames/gravitate)](https://github.com/remarkablegames/gravitate/releases)
 [![build](https://github.com/remarkablegames/gravitate/actions/workflows/build.yml/badge.svg)](https://github.com/remarkablegames/gravitate/actions/workflows/build.yml)
 
-<kbd>gravitate</kbd> is a template for making [Phaser](https://phaser.io/) platformer games. The template is inspired by [`phaser-3-tilemap-blog-posts`](https://github.com/mikewesthad/phaser-3-tilemap-blog-posts/tree/master/examples/post-2) (read the [Medium story](https://itnext.io/3d68e73d494a)).
+🧲 Guide a robot through platformer puzzles by shifting gravity in four directions. Roll across walls, walk on ceilings, and use the room itself to find your way out.
 
 Play in your browser:
 
@@ -40,16 +40,6 @@ Install the dependencies:
 
 ```sh
 npm install
-```
-
-Rename the game:
-
-```sh
-git grep -l gravitate | xargs sed -i '' -e 's/gravitate/my-game/g'
-```
-
-```sh
-git grep -l 'Gravitate' | xargs sed -i '' -e 's/Gravitate/My Game/g'
 ```
 
 Update the files:
