@@ -1,7 +1,7 @@
 {
-  "name": "Phaser Platformer",
-  "short_name": "Phaser Platformer",
-  "description": "Phaser Platformer",
+  "name": "Gravitate",
+  "short_name": "Gravitate",
+  "description": "Gravitate",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#000000",

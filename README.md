@@ -1,23 +1,23 @@
 <p align="center">
-  <img src="public/logo192.png" alt="Phaser Platformer">
+  <img src="public/logo192.png" alt="Gravitate">
 </p>
 
-# Phaser Platformer
+# Gravitate
 
-[![release](https://img.shields.io/github/v/release/remarkablegames/phaser-platformer)](https://github.com/remarkablegames/phaser-platformer/releases)
-[![build](https://github.com/remarkablegames/phaser-platformer/actions/workflows/build.yml/badge.svg)](https://github.com/remarkablegames/phaser-platformer/actions/workflows/build.yml)
+[![release](https://img.shields.io/github/v/release/remarkablegames/gravitate)](https://github.com/remarkablegames/gravitate/releases)
+[![build](https://github.com/remarkablegames/gravitate/actions/workflows/build.yml/badge.svg)](https://github.com/remarkablegames/gravitate/actions/workflows/build.yml)
 
-<kbd>phaser-platformer</kbd> is a template for making [Phaser](https://phaser.io/) platformer games. The template is inspired by [`phaser-3-tilemap-blog-posts`](https://github.com/mikewesthad/phaser-3-tilemap-blog-posts/tree/master/examples/post-2) (read the [Medium story](https://itnext.io/3d68e73d494a)).
+<kbd>gravitate</kbd> is a template for making [Phaser](https://phaser.io/) platformer games. The template is inspired by [`phaser-3-tilemap-blog-posts`](https://github.com/mikewesthad/phaser-3-tilemap-blog-posts/tree/master/examples/post-2) (read the [Medium story](https://itnext.io/3d68e73d494a)).
 
 Play in your browser:
 
-- [remarkablegames](https://remarkablegames.org/phaser-platformer/)
+- [remarkablegames](https://remarkablegames.org/gravitate/)
 
 Or download for desktop:
 
-- [Windows](https://github.com/remarkablegames/phaser-platformer/releases/latest/download/windows.zip)
-- [macOS](https://github.com/remarkablegames/phaser-platformer/releases/latest/download/macos.zip)
-- [Linux](https://github.com/remarkablegames/phaser-platformer/releases/latest/download/linux.zip)
+- [Windows](https://github.com/remarkablegames/gravitate/releases/latest/download/windows.zip)
+- [macOS](https://github.com/remarkablegames/gravitate/releases/latest/download/macos.zip)
+- [Linux](https://github.com/remarkablegames/gravitate/releases/latest/download/linux.zip)
 
 ## Prerequisites
 
@@ -32,8 +32,8 @@ brew install nvm
 Clone the repository:
 
 ```sh
-git clone https://github.com/remarkablegames/phaser-platformer.git
-cd phaser-platformer
+git clone https://github.com/remarkablegames/gravitate.git
+cd gravitate
 ```
 
 Install the dependencies:
@@ -45,11 +45,11 @@ npm install
 Rename the game:
 
 ```sh
-git grep -l phaser-platformer | xargs sed -i '' -e 's/phaser-platformer/my-game/g'
+git grep -l gravitate | xargs sed -i '' -e 's/gravitate/my-game/g'
 ```
 
 ```sh
-git grep -l 'Phaser Platformer' | xargs sed -i '' -e 's/Phaser Platformer/My Game/g'
+git grep -l 'Gravitate' | xargs sed -i '' -e 's/Gravitate/My Game/g'
 ```
 
 Update the files:

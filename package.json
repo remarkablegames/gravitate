@@ -1,5 +1,5 @@
 {
-  "name": "phaser-platformer",
+  "name": "gravitate",
   "private": true,
   "version": "1.0.0-alpha",
   "scripts": {
@@ -13,7 +13,7 @@
     "preview": "vite preview",
     "start": "vite --open"
   },
-  "homepage": "https://remarkablegames.org/phaser-platformer/",
+  "homepage": "https://remarkablegames.org/gravitate/",
   "dependencies": {
     "phaser": "4.2.1",
     "phaser-jsx": "1.0.3"
