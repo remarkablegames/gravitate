@@ -13,7 +13,7 @@ import {
   TILEMAP_OBJECT,
   TILESET_NAME,
 } from '../constants';
-import { Arrow, Player } from '../sprites';
+import { Arrow, Exit, Player } from '../sprites';
 
 const GRAVITY_UPDATE_COOLDOWN_MS = 500;
 
@@ -67,45 +67,32 @@ export class Game extends Phaser.Scene {
       }
     });
 
-    // Treat every non-empty Ground tile as solid
+    // Treat every non-empty ground tile as solid
     this.groundLayer.setCollisionByExclusion([-1, 0]);
 
-    // Instantiate a player instance at the location of the "Spawn" object in the Tiled map
+    // Spawn player
     const spawnPoint = map.findObject(
       TILEMAP_LAYER.OBJECTS,
       ({ name }) => name === TILEMAP_OBJECT.SPAWN,
     )!;
     this.player = new Player(this, spawnPoint.x!, spawnPoint.y!);
 
-    // Collide the player against the ground layer
+    // Collide player against ground layer
     this.physics.world.addCollider(this.player, this.groundLayer);
 
-    // Overlap the player with the Exit object to go to the next level
-    const exitPoint = map.findObject(
-      TILEMAP_LAYER.OBJECTS,
-      ({ name }) => name === TILEMAP_OBJECT.EXIT,
-    );
-    if (exitPoint) {
-      const exitZone = this.add.zone(exitPoint.x!, exitPoint.y!, 20, 14);
-      exitZone.setOrigin(0.5);
-      this.physics.add.existing(exitZone);
-      const exitBody = exitZone.body as Phaser.Physics.Arcade.Body;
-      exitBody.setAllowGravity(false);
-      exitBody.setImmovable(true);
+    // Place exit
+    const exits: Exit[] = [];
+    map.getObjectLayer(TILEMAP_LAYER.OBJECTS)?.objects.forEach((obj) => {
+      if (obj.name === TILEMAP_OBJECT.EXIT) {
+        exits.push(new Exit(this, obj.x!, obj.y!));
+      }
+    });
 
-      this.physics.world.addOverlap(
-        this.player,
-        exitZone,
-        this.handleExitOverlap,
-      );
-    }
+    // Go to next level when player reaches exit
+    this.physics.world.addOverlap(exits, this.player, this.handleExit);
 
-    // Overlap arrows with the player to change gravity direction
-    this.physics.world.addOverlap(
-      arrows,
-      this.player,
-      this.handleArrowCollision,
-    );
+    // Change gravity direction when player touches arrow
+    this.physics.world.addOverlap(arrows, this.player, this.handleArrow);
 
     this.fitCameraToMap(map);
 
@@ -135,7 +122,7 @@ export class Game extends Phaser.Scene {
     }
   }
 
-  private handleArrowCollision = (
+  private handleArrow = (
     arrow:
       | Phaser.Types.Physics.Arcade.GameObjectWithBody
       | Phaser.Physics.Arcade.Body
@@ -168,7 +155,7 @@ export class Game extends Phaser.Scene {
     this.player.toggleFlipY();
   };
 
-  private handleExitOverlap = () => {
+  private handleExit = () => {
     if (!this.isExiting) {
       this.isExiting = true;
       this.scene.start(KEY.SCENE.GAME, { level: this.level.level + 1 });
@@ -186,7 +173,7 @@ export class Game extends Phaser.Scene {
       return;
     }
 
-    // Keep the help text at a fixed screen size regardless of the camera zoom
+    // Keep help text at a fixed screen size regardless of camera zoom
     const uiCamera = this.cameras.add(
       0,
       0,
@@ -196,8 +183,7 @@ export class Game extends Phaser.Scene {
     this.cameras.main.ignore(helpText);
     uiCamera.ignore(ignoreList.concat(this.player));
 
-    // The physics debug graphic is a world-space object, so the UI camera would
-    // draw a second copy of every body at the top-left of the screen
+    // Don't draw a second copy of every body since physics debug graphic is a world-space object
     if (this.physics.world.drawDebug) {
       uiCamera.ignore(this.physics.world.debugGraphic);
     }
@@ -211,13 +197,13 @@ export class Game extends Phaser.Scene {
     this.player.update();
 
     if (this.player.y > this.groundLayer.height) {
-      // Flag that the player is dead so that we can stop update from running
+      // Flag player is dead so update can stop running
       this.isPlayerDead = true;
 
       this.cameras.main.shake(100, 0.05);
       this.cameras.main.fade(250, 0, 0, 0);
 
-      // Freeze the player to leave them on the screen while fading
+      // Freeze player to leave them on the screen while fading
       this.player.body.moves = false;
 
       this.cameras.main.once('camerafadeoutcomplete', () => {
