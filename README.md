@@ -19,6 +19,10 @@ Or download for desktop:
 - [macOS](https://github.com/remarkablegames/gravitate/releases/latest/download/macos.zip)
 - [Linux](https://github.com/remarkablegames/gravitate/releases/latest/download/linux.zip)
 
+## Credits
+
+- [Sci-fi Platformer - 16x16 Asset Pack](https://wrabitart.itch.io/sci-fi-platformer-asset-pack)
+
 ## Prerequisites
 
 [nvm](https://github.com/nvm-sh/nvm#installing-and-updating):

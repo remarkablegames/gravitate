@@ -20,7 +20,7 @@ new Game({
     arcade: {
       gravity: {
         x: 0,
-        y: 1000,
+        y: 500,
       },
       debug: import.meta.env.DEV,
     },

@@ -1,4 +1,4 @@
-export const TILESET_NAME = '0x72-industrial-tileset-32px-extruded';
+export const TILESET_NAME = 'tileset';
 
 export const TILEMAP_LAYER = {
   BACKGROUND: 'Background',
@@ -8,10 +8,9 @@ export const TILEMAP_LAYER = {
 } as const;
 
 export const TILEMAP_OBJECT = {
-  SPAWN_POINT: 'Spawn Point',
+  SPAWN: 'Spawn',
 } as const;
 
 export const TILE = {
-  BOX: 6,
-  SPIKE: 77,
+  BOX: 56,
 } as const;

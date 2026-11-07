@@ -40,10 +40,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.scene.physics.world.enable(this);
 
     // Create the physics-based sprite that we will move around and animate
-    this.setDrag(1000, 0)
-      .setMaxVelocity(300, 400)
-      .setSize(18, 24)
-      .setOffset(7, 9);
+    this.setDrag(500, 0)
+      .setMaxVelocity(150, 200)
+      .setSize(14, 16)
+      .setOffset(8, 7);
 
     // Add the sprite to the scene
     this.scene.add.existing(this);
@@ -64,7 +64,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         key: ANIMATION.IDLE,
         frames: anims.generateFrameNumbers(KEY.SPRITESHEET.PLAYER, {
           start: 0,
-          end: 3,
+          end: 4,
         }),
         frameRate: 3,
         repeat: -1,
@@ -89,7 +89,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   update() {
-    const acceleration = this.body.blocked.down ? 600 : 200;
+    const acceleration = this.body.blocked.down ? 300 : 100;
 
     // Apply horizontal acceleration when left or right are applied
     switch (true) {
@@ -116,7 +116,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.body.blocked.down &&
       (this.cursors.up.isDown || this.cursors.w.isDown)
     ) {
-      this.setVelocityY(-500);
+      this.setVelocityY(-250);
     }
 
     // Update the animation/texture based on the state of the player

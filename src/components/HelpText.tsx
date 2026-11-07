@@ -1,11 +1,15 @@
-import { Text } from 'phaser-jsx';
+import type Phaser from 'phaser';
+import { type GameObjectProps, Text } from 'phaser-jsx';
+
+type HelpTextProps = Pick<GameObjectProps<Phaser.GameObjects.Text>, 'ref'>;
 
 /**
  * Help text that has a "fixed" position on the screen.
  */
-export function HelpText() {
+export function HelpText({ ref }: HelpTextProps) {
   return (
     <Text
+      ref={ref}
       x={16}
       y={16}
       text={[

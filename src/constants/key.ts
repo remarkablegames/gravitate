@@ -1,5 +1,4 @@
 export const IMAGE = {
-  SPIKE: 'SPIKE',
   TILES: 'TILES',
 } as const;
 
@@ -13,5 +12,5 @@ export const SPRITESHEET = {
 } as const;
 
 export const TILEMAP = {
-  PLATFORMER: 'PLATFORMER',
+  LEVEL_0: 'LEVEL_0',
 } as const;

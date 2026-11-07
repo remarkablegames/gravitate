@@ -15,9 +15,9 @@ export class TileMarker extends Phaser.GameObjects.Graphics {
     this.map = map;
     this.groundLayer = groundLayer;
 
-    this.lineStyle(5, 0xffffff, 1);
+    this.lineStyle(2, 0xffffff, 1);
     this.strokeRect(0, 0, map.tileWidth, map.tileHeight);
-    this.lineStyle(3, 0xff4f78, 1);
+    this.lineStyle(1, 0xff4f78, 1);
     this.strokeRect(0, 0, map.tileWidth, map.tileHeight);
 
     // Add the graphic to the scene

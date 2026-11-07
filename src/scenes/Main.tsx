@@ -1,21 +1,15 @@
 import Phaser from 'phaser';
 import { render } from 'phaser-jsx';
+import type { RefObject } from 'react';
 
 import { HelpText } from '../components';
-import {
-  KEY,
-  TILE,
-  TILEMAP_LAYER,
-  TILEMAP_OBJECT,
-  TILESET_NAME,
-} from '../constants';
+import { KEY, TILEMAP_LAYER, TILEMAP_OBJECT, TILESET_NAME } from '../constants';
 import { TileMarker } from '../graphics';
 import { Player } from '../sprites';
 
 export class Main extends Phaser.Scene {
   private groundLayer!: Phaser.Tilemaps.TilemapLayer;
   private player!: Player;
-  private spikeGroup!: Phaser.Physics.Arcade.StaticGroup;
   private tileMarker!: Phaser.GameObjects.Graphics;
   private isPlayerDead = false;
 
@@ -26,10 +20,10 @@ export class Main extends Phaser.Scene {
   create() {
     this.isPlayerDead = false;
 
-    const map = this.make.tilemap({ key: KEY.TILEMAP.PLATFORMER });
+    const map = this.make.tilemap({ key: KEY.TILEMAP.LEVEL_0 });
     const tileset = map.addTilesetImage(TILESET_NAME, KEY.IMAGE.TILES)!;
 
-    map.createLayer(TILEMAP_LAYER.BACKGROUND, tileset);
+    const backgroundLayer = map.createLayer(TILEMAP_LAYER.BACKGROUND, tileset);
     this.groundLayer = map.createLayer(
       TILEMAP_LAYER.GROUND,
       tileset,
@@ -37,54 +31,75 @@ export class Main extends Phaser.Scene {
       undefined,
       false,
     ) as Phaser.Tilemaps.TilemapLayer;
-    map.createLayer(TILEMAP_LAYER.FOREGROUND, tileset);
+    const foregroundLayer = map.createLayer(TILEMAP_LAYER.FOREGROUND, tileset);
 
-    // Instantiate a player instance at the location of the "Spawn Point" object in the Tiled map
+    // Treat every non-empty Ground tile as solid
+    this.groundLayer.setCollisionByExclusion([-1, 0]);
+
+    // Instantiate a player instance at the location of the "Spawn" object in the Tiled map
     const spawnPoint = map.findObject(
       TILEMAP_LAYER.OBJECTS,
-      ({ name }) => name === TILEMAP_OBJECT.SPAWN_POINT,
+      ({ name }) => name === TILEMAP_OBJECT.SPAWN,
     )!;
     this.player = new Player(this, spawnPoint.x!, spawnPoint.y!);
 
     // Collide the player against the ground layer
-    this.groundLayer.setCollisionByProperty({ collides: true });
     this.physics.world.addCollider(this.player, this.groundLayer);
 
-    // The map contains a row of spikes. The spike only take a small sliver of the tile graphic, so
-    // if we let arcade physics treat the spikes as colliding, the player will collide while the
-    // sprite is hovering over the spikes. We'll remove the spike tiles and turn them into sprites
-    // so that we give them a more fitting hitbox
-    this.spikeGroup = this.physics.add.staticGroup();
-    this.groundLayer.forEachTile((tile) => {
-      if (tile.index === TILE.SPIKE) {
-        const spike = this.spikeGroup.create(
-          tile.getCenterX(),
-          tile.getCenterY(),
-          KEY.IMAGE.SPIKE,
-        ) as Phaser.Physics.Arcade.Sprite;
-        const spikeBody = spike.body as Phaser.Physics.Arcade.StaticBody;
-
-        // The map has spikes rotated in Tiled (z key), so parse out that angle to the correct body
-        // placement
-        spike.rotation = tile.rotation;
-        if (spike.angle === 0) {
-          spikeBody.setSize(32, 6).setOffset(0, 26);
-        } else if (spike.angle === -90) {
-          spikeBody.setSize(6, 32).setOffset(26, 0);
-        } else if (spike.angle === 90) {
-          spikeBody.setSize(6, 32).setOffset(0, 0);
-        }
-
-        this.groundLayer.removeTileAt(tile.x, tile.y);
-      }
-    });
-
-    this.cameras.main.startFollow(this.player);
-    this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+    this.fitCameraToMap(map);
 
     this.tileMarker = new TileMarker(this, map, this.groundLayer);
 
-    render(<HelpText />, this);
+    this.createHelpText(backgroundLayer, foregroundLayer);
+  }
+
+  private fitCameraToMap(map: Phaser.Tilemaps.Tilemap) {
+    const camera = this.cameras.main;
+    const fitZoom = Math.min(
+      this.scale.width / map.widthInPixels,
+      this.scale.height / map.heightInPixels,
+    );
+    const zoom = Phaser.Math.Clamp(fitZoom, 1, 4);
+
+    camera.setZoom(zoom);
+
+    if (fitZoom >= 1) {
+      camera.centerOn(map.widthInPixels / 2, map.heightInPixels / 2);
+    } else {
+      camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+      camera.startFollow(this.player);
+    }
+  }
+
+  private createHelpText(
+    backgroundLayer: Phaser.GameObjects.GameObject,
+    foregroundLayer: Phaser.GameObjects.GameObject,
+  ) {
+    const helpTextRef: RefObject<Phaser.GameObjects.Text | null> = {
+      current: null,
+    };
+    render(<HelpText ref={helpTextRef} />, this);
+
+    const helpText = helpTextRef.current;
+    if (!helpText) {
+      return;
+    }
+
+    // Keep the help text at a fixed screen size regardless of the camera zoom
+    const uiCamera = this.cameras.add(
+      0,
+      0,
+      this.scale.width,
+      this.scale.height,
+    );
+    this.cameras.main.ignore(helpText);
+    uiCamera.ignore([
+      backgroundLayer,
+      this.groundLayer,
+      foregroundLayer,
+      this.player,
+      this.tileMarker,
+    ]);
   }
 
   update() {
@@ -95,10 +110,7 @@ export class Main extends Phaser.Scene {
     this.player.update();
     this.tileMarker.update();
 
-    if (
-      this.player.y > this.groundLayer.height ||
-      this.physics.world.overlap(this.player, this.spikeGroup)
-    ) {
+    if (this.player.y > this.groundLayer.height) {
       // Flag that the player is dead so that we can stop update from running in the future
       this.isPlayerDead = true;
 
