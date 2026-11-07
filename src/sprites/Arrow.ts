@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 
-import { type ArrowDirection, KEY } from '../constants';
+import { ARROW_DIRECTION, type ArrowDirection, KEY } from '../constants';
 
 const DIRECTION_ANGLE: Record<ArrowDirection, number> = {
   up: 0,
@@ -16,7 +16,7 @@ export class Arrow extends Phaser.Physics.Arcade.Sprite {
     scene: Phaser.Scene,
     x: number,
     y: number,
-    direction: ArrowDirection = 'up',
+    direction: ArrowDirection = ARROW_DIRECTION.UP,
     texture = KEY.IMAGE.ARROW,
     frame = 0,
   ) {
