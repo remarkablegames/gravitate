@@ -15,6 +15,7 @@ type Cursors = Record<
 export class Player extends Phaser.Physics.Arcade.Sprite {
   declare body: Phaser.Physics.Arcade.Body;
   private cursors: Cursors;
+  private gravityDirection: 'down' | 'up' = 'down';
 
   constructor(
     scene: Phaser.Scene,
@@ -88,6 +89,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.body.moves = false;
   }
 
+  setGravityDirection(direction: 'down' | 'up') {
+    this.gravityDirection = direction;
+  }
+
   update() {
     const acceleration = this.body.blocked.down ? 300 : 100;
 
@@ -111,16 +116,18 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.setAccelerationX(0);
     }
 
-    // Only allow the player to jump if they are on the ground
-    if (
-      this.body.blocked.down &&
-      (this.cursors.up.isDown || this.cursors.w.isDown)
-    ) {
-      this.setVelocityY(-250);
+    // Only allow the player to jump if they are on the ground (relative to gravity)
+    const isOnGround =
+      this.gravityDirection === 'down'
+        ? this.body.blocked.down
+        : this.body.blocked.up;
+
+    if (isOnGround && (this.cursors.up.isDown || this.cursors.w.isDown)) {
+      this.setVelocityY(this.gravityDirection === 'down' ? -250 : 250);
     }
 
     // Update the animation/texture based on the state of the player
-    if (this.body.blocked.down) {
+    if (isOnGround) {
       this.anims.play(
         this.body.velocity.x ? ANIMATION.RUN : ANIMATION.IDLE,
         true,

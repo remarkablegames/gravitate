@@ -4,7 +4,8 @@ import type { RefObject } from 'react';
 
 import { HelpText } from '../components';
 import {
-  type ArrowDirection,
+  DIRECTION,
+  type Direction,
   KEY,
   TILEMAP_LAYER,
   TILEMAP_OBJECT,
@@ -16,6 +17,8 @@ export class Main extends Phaser.Scene {
   private arrows: Arrow[] = [];
   private groundLayer!: Phaser.Tilemaps.TilemapLayer;
   private player!: Player;
+  private gravityDirection: Direction = DIRECTION.DOWN;
+  private lastGravityReverse = 0;
   private isPlayerDead = false;
 
   constructor() {
@@ -42,12 +45,7 @@ export class Main extends Phaser.Scene {
     map.getObjectLayer('Objects')?.objects.forEach((obj) => {
       if (obj.type === TILEMAP_OBJECT.ARROW) {
         this.arrows.push(
-          new Arrow(
-            this,
-            obj.x!,
-            obj.y!,
-            obj.name.toLowerCase() as ArrowDirection,
-          ),
+          new Arrow(this, obj.x!, obj.y!, obj.name.toLowerCase() as Direction),
         );
       }
     });
@@ -64,6 +62,13 @@ export class Main extends Phaser.Scene {
 
     // Collide the player against the ground layer
     this.physics.world.addCollider(this.player, this.groundLayer);
+
+    // Collide the player against arrows to reverse gravity
+    this.physics.world.addOverlap(
+      this.player,
+      this.arrows,
+      this.handleArrowCollision,
+    );
 
     this.fitCameraToMap(map);
 
@@ -87,6 +92,22 @@ export class Main extends Phaser.Scene {
       camera.startFollow(this.player);
     }
   }
+
+  private handleArrowCollision = () => {
+    const { now } = this.time;
+    if (now - this.lastGravityReverse < 500) {
+      return;
+    }
+    this.lastGravityReverse = now;
+    this.gravityDirection =
+      this.gravityDirection === DIRECTION.DOWN ? DIRECTION.UP : DIRECTION.DOWN;
+    this.physics.world.gravity.y =
+      this.gravityDirection === DIRECTION.DOWN
+        ? this.physics.world.gravity.y
+        : -this.physics.world.gravity.y;
+    this.player.setGravityDirection(this.gravityDirection);
+    this.player.toggleFlipY();
+  };
 
   private createHelpText(
     backgroundLayer: Phaser.GameObjects.GameObject,
