@@ -11,6 +11,7 @@ const DIRECTION_ANGLE: Record<Direction, number> = {
 
 export class Arrow extends Phaser.Physics.Arcade.Sprite {
   declare body: Phaser.Physics.Arcade.Body;
+  readonly direction: Direction;
 
   constructor(
     scene: Phaser.Scene,
@@ -25,6 +26,7 @@ export class Arrow extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     scene.physics.world.enable(this);
 
+    this.direction = direction;
     this.setOrigin(0.5);
     this.setScale(8 / this.width);
     this.setRotation(DIRECTION_ANGLE[direction]);

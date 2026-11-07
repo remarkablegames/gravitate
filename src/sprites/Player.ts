@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 
-import { KEY } from '../constants';
+import { DIRECTION, type Direction, KEY } from '../constants';
 
 const ANIMATION = {
   IDLE: 'IDLE',
@@ -15,7 +15,7 @@ type Cursors = Record<
 export class Player extends Phaser.Physics.Arcade.Sprite {
   declare body: Phaser.Physics.Arcade.Body;
   private cursors: Cursors;
-  private gravityDirection: 'down' | 'up' = 'down';
+  gravityDirection: Direction = DIRECTION.DOWN;
 
   constructor(
     scene: Phaser.Scene,
@@ -26,27 +26,19 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   ) {
     super(scene, x, y, texture, frame);
 
-    // Add cursor keys
     this.cursors = this.createCursorKeys();
-
-    // Create sprite animations
     this.createAnimations();
-
-    // Enable sprite physics
     this.enablePhysics();
   }
 
   private enablePhysics() {
-    // Enable physics for the sprite
     this.scene.physics.world.enable(this);
 
-    // Create the physics-based sprite that we will move around and animate
     this.setDrag(500, 0)
       .setMaxVelocity(150, 200)
       .setSize(14, 16)
       .setOffset(8, 7);
 
-    // Add the sprite to the scene
     this.scene.add.existing(this);
   }
 
@@ -56,8 +48,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     ) as Cursors;
   }
 
+  /**
+   * Create the animations we need from the player spritesheet.
+   */
   private createAnimations() {
-    // Create the animations we need from the player spritesheet
     const anims = this.scene.anims;
 
     if (!anims.exists(ANIMATION.IDLE)) {
@@ -85,23 +79,21 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  freeze() {
-    this.body.moves = false;
-  }
-
-  setGravityDirection(direction: 'down' | 'up') {
-    this.gravityDirection = direction;
-  }
-
   update() {
     const acceleration = this.body.blocked.down ? 300 : 100;
+
+    // Only allow the player to jump if they are on the ground (relative to gravity)
+    const isOnGround = this.isOnGround();
+    const jumpKey = this.cursors.up.isDown || this.cursors.w.isDown;
+
+    if (isOnGround && jumpKey) {
+      this.jump();
+    }
 
     // Apply horizontal acceleration when left or right are applied
     switch (true) {
       case this.cursors.left.isDown:
       case this.cursors.a.isDown:
-        // No need to have a separate set of graphics for running to the left & to the right
-        // Instead we can just mirror the sprite
         this.setFlipX(true);
         this.setAccelerationX(-acceleration);
         break;
@@ -116,16 +108,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.setAccelerationX(0);
     }
 
-    // Only allow the player to jump if they are on the ground (relative to gravity)
-    const isOnGround =
-      this.gravityDirection === 'down'
-        ? this.body.blocked.down
-        : this.body.blocked.up;
-
-    if (isOnGround && (this.cursors.up.isDown || this.cursors.w.isDown)) {
-      this.setVelocityY(this.gravityDirection === 'down' ? -250 : 250);
-    }
-
     // Update the animation/texture based on the state of the player
     if (isOnGround) {
       this.anims.play(
@@ -135,6 +117,36 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     } else {
       this.anims.stop();
       this.setTexture(KEY.SPRITESHEET.PLAYER, 10);
+    }
+  }
+
+  private isOnGround() {
+    switch (this.gravityDirection) {
+      case DIRECTION.DOWN:
+        return this.body.blocked.down;
+      case DIRECTION.UP:
+        return this.body.blocked.up;
+      case DIRECTION.LEFT:
+        return this.body.blocked.left;
+      case DIRECTION.RIGHT:
+        return this.body.blocked.right;
+    }
+  }
+
+  private jump() {
+    switch (this.gravityDirection) {
+      case DIRECTION.DOWN:
+        this.setVelocityY(-250);
+        break;
+      case DIRECTION.UP:
+        this.setVelocityY(250);
+        break;
+      case DIRECTION.LEFT:
+        this.setVelocityX(250);
+        break;
+      case DIRECTION.RIGHT:
+        this.setVelocityX(-250);
+        break;
     }
   }
 }

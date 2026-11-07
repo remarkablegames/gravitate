@@ -14,7 +14,6 @@ import {
 import { Arrow, Player } from '../sprites';
 
 export class Main extends Phaser.Scene {
-  private arrows: Arrow[] = [];
   private groundLayer!: Phaser.Tilemaps.TilemapLayer;
   private player!: Player;
   private gravityDirection: Direction = DIRECTION.DOWN;
@@ -31,6 +30,7 @@ export class Main extends Phaser.Scene {
     const map = this.make.tilemap({ key: KEY.TILEMAP.LEVEL_0 });
     const tileset = map.addTilesetImage(TILESET_NAME, KEY.IMAGE.TILES)!;
 
+    // Render background, ground, and foreground layers
     const backgroundLayer = map.createLayer(TILEMAP_LAYER.BACKGROUND, tileset);
     this.groundLayer = map.createLayer(
       TILEMAP_LAYER.GROUND,
@@ -42,9 +42,10 @@ export class Main extends Phaser.Scene {
     const foregroundLayer = map.createLayer(TILEMAP_LAYER.FOREGROUND, tileset);
 
     // Render arrows
+    const arrows: Arrow[] = [];
     map.getObjectLayer('Objects')?.objects.forEach((obj) => {
       if (obj.type === TILEMAP_OBJECT.ARROW) {
-        this.arrows.push(
+        arrows.push(
           new Arrow(this, obj.x!, obj.y!, obj.name.toLowerCase() as Direction),
         );
       }
@@ -63,16 +64,21 @@ export class Main extends Phaser.Scene {
     // Collide the player against the ground layer
     this.physics.world.addCollider(this.player, this.groundLayer);
 
-    // Collide the player against arrows to reverse gravity
+    // Overlap arrows with the player to change gravity direction
     this.physics.world.addOverlap(
+      arrows,
       this.player,
-      this.arrows,
       this.handleArrowCollision,
     );
 
     this.fitCameraToMap(map);
 
-    this.createHelpText(backgroundLayer, foregroundLayer);
+    this.createHelpText(
+      backgroundLayer,
+      this.groundLayer,
+      foregroundLayer,
+      ...arrows,
+    );
   }
 
   private fitCameraToMap(map: Phaser.Tilemaps.Tilemap) {
@@ -93,26 +99,40 @@ export class Main extends Phaser.Scene {
     }
   }
 
-  private handleArrowCollision = () => {
+  private handleArrowCollision = (
+    arrow:
+      | Phaser.Types.Physics.Arcade.GameObjectWithBody
+      | Phaser.Physics.Arcade.Body
+      | Phaser.Physics.Arcade.StaticBody
+      | Phaser.Tilemaps.Tile,
+  ) => {
     const { now } = this.time;
     if (now - this.lastGravityReverse < 500) {
       return;
     }
     this.lastGravityReverse = now;
-    this.gravityDirection =
-      this.gravityDirection === DIRECTION.DOWN ? DIRECTION.UP : DIRECTION.DOWN;
-    this.physics.world.gravity.y =
-      this.gravityDirection === DIRECTION.DOWN
-        ? this.physics.world.gravity.y
-        : -this.physics.world.gravity.y;
-    this.player.setGravityDirection(this.gravityDirection);
+    this.gravityDirection = (arrow as Arrow).direction;
+
+    switch (this.gravityDirection) {
+      case DIRECTION.DOWN:
+        this.physics.world.gravity.set(0, 500);
+        break;
+      case DIRECTION.UP:
+        this.physics.world.gravity.set(0, -500);
+        break;
+      case DIRECTION.LEFT:
+        this.physics.world.gravity.set(-500, 0);
+        break;
+      case DIRECTION.RIGHT:
+        this.physics.world.gravity.set(500, 0);
+        break;
+    }
+
+    this.player.gravityDirection = this.gravityDirection;
     this.player.toggleFlipY();
   };
 
-  private createHelpText(
-    backgroundLayer: Phaser.GameObjects.GameObject,
-    foregroundLayer: Phaser.GameObjects.GameObject,
-  ) {
+  private createHelpText(...ignoreList: Phaser.GameObjects.GameObject[]) {
     const helpTextRef: RefObject<Phaser.GameObjects.Text | null> = {
       current: null,
     };
@@ -131,17 +151,10 @@ export class Main extends Phaser.Scene {
       this.scale.height,
     );
     this.cameras.main.ignore(helpText);
-    const ignoreList: Phaser.GameObjects.GameObject[] = [
-      backgroundLayer,
-      this.groundLayer,
-      foregroundLayer,
-      this.player,
-      ...this.arrows,
-    ];
-    uiCamera.ignore(ignoreList);
+    uiCamera.ignore(ignoreList.concat(this.player));
 
     // The physics debug graphic is a world-space object, so the UI camera would
-    // draw a second, unscaled copy of every body at the top-left of the screen
+    // draw a second copy of every body at the top-left of the screen
     if (this.physics.world.drawDebug) {
       uiCamera.ignore(this.physics.world.debugGraphic);
     }
@@ -155,14 +168,14 @@ export class Main extends Phaser.Scene {
     this.player.update();
 
     if (this.player.y > this.groundLayer.height) {
-      // Flag that the player is dead so that we can stop update from running in the future
+      // Flag that the player is dead so that we can stop update from running
       this.isPlayerDead = true;
 
       this.cameras.main.shake(100, 0.05);
       this.cameras.main.fade(250, 0, 0, 0);
 
-      // Freeze the player to leave them on screen while fading but remove the marker immediately
-      this.player.freeze();
+      // Freeze the player to leave them on the screen while fading
+      this.player.body.moves = false;
 
       this.cameras.main.once('camerafadeoutcomplete', () => {
         this.player.destroy();
