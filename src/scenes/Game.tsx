@@ -15,7 +15,7 @@ import { Arrow, Player } from '../sprites';
 
 const GRAVITY_UPDATE_COOLDOWN_MS = 500;
 
-export class Main extends Phaser.Scene {
+export class Game extends Phaser.Scene {
   private groundLayer!: Phaser.Tilemaps.TilemapLayer;
   private player!: Player;
 
