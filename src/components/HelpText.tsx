@@ -12,7 +12,7 @@ export function HelpText(props: Props) {
       ref={props.ref}
       x={2}
       y={0}
-      text={['WASD or arrow keys to move & jump'].join('\n')}
+      text={['WASD or arrow keys to move'].join('\n')}
       style={{
         backgroundColor: '#fff',
         color: '#000',
