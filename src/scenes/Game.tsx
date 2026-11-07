@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
-import { render } from 'phaser-jsx';
-import type { RefObject } from 'react';
+import { render, useRef } from 'phaser-jsx';
 
 import { HelpText } from '../components';
 import {
@@ -163,10 +162,8 @@ export class Game extends Phaser.Scene {
   };
 
   private createHelpText(...ignoreList: Phaser.GameObjects.GameObject[]) {
-    const helpTextRef: RefObject<Phaser.GameObjects.Text | null> = {
-      current: null,
-    };
-    render(<HelpText ref={helpTextRef} />, this);
+    const helpTextRef = useRef<Phaser.GameObjects.Text>();
+    render(<HelpText ref={helpTextRef} text={this.level.helpText} />, this);
 
     const helpText = helpTextRef.current;
     if (!helpText) {
