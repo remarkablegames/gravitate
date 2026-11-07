@@ -9,5 +9,6 @@ export const TILEMAP_LAYER = {
 
 export const TILEMAP_OBJECT = {
   SPAWN: 'Spawn',
+  EXIT: 'Exit',
   ARROW: 'Arrow',
 } as const;

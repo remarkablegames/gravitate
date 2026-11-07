@@ -1,6 +1,6 @@
 import { Scene } from 'phaser';
 
-import { KEY } from '../constants';
+import { KEY, LEVELS } from '../constants';
 
 export class Boot extends Scene {
   constructor() {
@@ -16,7 +16,9 @@ export class Boot extends Scene {
     this.load.image(KEY.IMAGE.ARROW, 'sprites/arrow.png');
     this.load.image(KEY.IMAGE.TILES, 'tilemaps/tileset.png');
 
-    this.load.tilemapTiledJSON(KEY.TILEMAP.LEVEL_0, 'tilemaps/level0.json');
+    LEVELS.forEach(({ tilemap }) => {
+      this.load.tilemapTiledJSON(tilemap, `tilemaps/${tilemap}.json`);
+    });
   }
 
   create() {

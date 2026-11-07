@@ -7,6 +7,8 @@ import {
   DIRECTION,
   type Direction,
   KEY,
+  type Level,
+  LEVELS,
   TILEMAP_LAYER,
   TILEMAP_OBJECT,
   TILESET_NAME,
@@ -24,14 +26,22 @@ export class Game extends Phaser.Scene {
   private isPlayerDead = false;
   private lastGravityUpdate = 0;
 
+  private level!: Level;
+  private isExiting = false;
+
   constructor() {
     super(KEY.SCENE.GAME);
   }
 
+  init({ level = 0 }) {
+    this.level = LEVELS[level] ?? LEVELS[0];
+  }
+
   create() {
     this.isPlayerDead = false;
+    this.isExiting = false;
 
-    const map = this.make.tilemap({ key: KEY.TILEMAP.LEVEL_0 });
+    const map = this.make.tilemap({ key: this.level.tilemap });
     const tileset = map.addTilesetImage(TILESET_NAME, KEY.IMAGE.TILES)!;
 
     // Render background, ground, and foreground layers
@@ -69,6 +79,26 @@ export class Game extends Phaser.Scene {
 
     // Collide the player against the ground layer
     this.physics.world.addCollider(this.player, this.groundLayer);
+
+    // Overlap the player with the Exit object to go to the next level
+    const exitPoint = map.findObject(
+      TILEMAP_LAYER.OBJECTS,
+      ({ name }) => name === TILEMAP_OBJECT.EXIT,
+    );
+    if (exitPoint) {
+      const exitZone = this.add.zone(exitPoint.x!, exitPoint.y!, 20, 14);
+      exitZone.setOrigin(0.5);
+      this.physics.add.existing(exitZone);
+      const exitBody = exitZone.body as Phaser.Physics.Arcade.Body;
+      exitBody.setAllowGravity(false);
+      exitBody.setImmovable(true);
+
+      this.physics.world.addOverlap(
+        this.player,
+        exitZone,
+        this.handleExitOverlap,
+      );
+    }
 
     // Overlap arrows with the player to change gravity direction
     this.physics.world.addOverlap(
@@ -136,6 +166,13 @@ export class Game extends Phaser.Scene {
 
     this.player.gravityDirection = this.gravityDirection;
     this.player.toggleFlipY();
+  };
+
+  private handleExitOverlap = () => {
+    if (!this.isExiting) {
+      this.isExiting = true;
+      this.scene.start(KEY.SCENE.GAME, { level: this.level.level + 1 });
+    }
   };
 
   private createHelpText(...ignoreList: Phaser.GameObjects.GameObject[]) {
