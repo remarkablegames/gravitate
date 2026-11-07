@@ -31,6 +31,15 @@ export class Main extends Phaser.Scene {
     ) as Phaser.Tilemaps.TilemapLayer;
     const foregroundLayer = map.createLayer(TILEMAP_LAYER.FOREGROUND, tileset);
 
+    // Render the arrow at the location of the "Up" object in the Tiled map
+    const upPoint = map.findObject(
+      TILEMAP_LAYER.OBJECTS,
+      ({ name }) => name === TILEMAP_OBJECT.UP,
+    );
+    if (upPoint) {
+      this.add.sprite(upPoint.x!, upPoint.y!, KEY.IMAGE.ARROW).setOrigin(0, 0);
+    }
+
     // Treat every non-empty Ground tile as solid
     this.groundLayer.setCollisionByExclusion([-1, 0]);
 
