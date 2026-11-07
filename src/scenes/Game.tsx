@@ -157,7 +157,12 @@ export class Game extends Phaser.Scene {
   private handleExit = () => {
     if (!this.isExiting) {
       this.isExiting = true;
-      this.scene.start(KEY.SCENE.GAME, { level: this.level.level + 1 });
+      this.cameras.main.fade(250, 0, 0, 0);
+
+      this.cameras.main.once('camerafadeoutcomplete', () => {
+        const nextLevel = this.level.level + 1;
+        this.scene.start(KEY.SCENE.GAME, { level: nextLevel });
+      });
     }
   };
 
@@ -187,14 +192,13 @@ export class Game extends Phaser.Scene {
   }
 
   update() {
-    if (this.isPlayerDead) {
+    if (this.isPlayerDead || this.isExiting) {
       return;
     }
 
     this.player.update();
 
     if (this.player.y > this.groundLayer.height) {
-      // Flag player is dead so update can stop running
       this.isPlayerDead = true;
 
       this.cameras.main.shake(100, 0.05);
