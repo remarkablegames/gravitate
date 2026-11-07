@@ -4,13 +4,11 @@ import type { RefObject } from 'react';
 
 import { HelpText } from '../components';
 import { KEY, TILEMAP_LAYER, TILEMAP_OBJECT, TILESET_NAME } from '../constants';
-import { TileMarker } from '../graphics';
 import { Player } from '../sprites';
 
 export class Main extends Phaser.Scene {
   private groundLayer!: Phaser.Tilemaps.TilemapLayer;
   private player!: Player;
-  private tileMarker!: Phaser.GameObjects.Graphics;
   private isPlayerDead = false;
 
   constructor() {
@@ -47,8 +45,6 @@ export class Main extends Phaser.Scene {
     this.physics.world.addCollider(this.player, this.groundLayer);
 
     this.fitCameraToMap(map);
-
-    this.tileMarker = new TileMarker(this, map, this.groundLayer);
 
     this.createHelpText(backgroundLayer, foregroundLayer);
   }
@@ -98,7 +94,6 @@ export class Main extends Phaser.Scene {
       this.groundLayer,
       foregroundLayer,
       this.player,
-      this.tileMarker,
     ]);
   }
 
@@ -108,7 +103,6 @@ export class Main extends Phaser.Scene {
     }
 
     this.player.update();
-    this.tileMarker.update();
 
     if (this.player.y > this.groundLayer.height) {
       // Flag that the player is dead so that we can stop update from running in the future

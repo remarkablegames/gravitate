@@ -12,11 +12,7 @@ export function HelpText({ ref }: HelpTextProps) {
       ref={ref}
       x={16}
       y={16}
-      text={[
-        'WASD or arrow keys to move & jump',
-        'Left-click to draw tiles',
-        'Right-click to erase tiles',
-      ].join('\n')}
+      text={['WASD or arrow keys to move & jump'].join('\n')}
       style={{
         backgroundColor: '#fff',
         color: '#000',
