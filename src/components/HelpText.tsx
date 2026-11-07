@@ -10,14 +10,14 @@ export function HelpText({ ref }: HelpTextProps) {
   return (
     <Text
       ref={ref}
-      x={16}
-      y={16}
+      x={2}
+      y={0}
       text={['WASD or arrow keys to move & jump'].join('\n')}
       style={{
         backgroundColor: '#fff',
         color: '#000',
         font: '18px monospace',
-        padding: { x: 20, y: 10 },
+        padding: { x: 16, y: 8 },
       }}
       scrollFactorX={0}
       scrollFactorY={0}

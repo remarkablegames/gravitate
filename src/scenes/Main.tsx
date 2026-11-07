@@ -95,6 +95,12 @@ export class Main extends Phaser.Scene {
       foregroundLayer,
       this.player,
     ]);
+
+    // The physics debug graphic is a world-space object, so the UI camera would
+    // draw a second, unscaled copy of every body at the top-left of the screen
+    if (this.physics.world.drawDebug) {
+      uiCamera.ignore(this.physics.world.debugGraphic);
+    }
   }
 
   update() {
