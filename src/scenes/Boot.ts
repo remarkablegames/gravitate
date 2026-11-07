@@ -13,14 +13,13 @@ export class Boot extends Scene {
       frameHeight: 32,
     });
 
+    this.load.image(KEY.IMAGE.ARROW, 'sprites/arrow.png');
     this.load.image(KEY.IMAGE.TILES, 'tilemaps/tileset.png');
 
     this.load.tilemapTiledJSON(KEY.TILEMAP.LEVEL_0, 'tilemaps/level0.json');
-
-    this.load.image(KEY.IMAGE.ARROW, 'sprites/arrow.png');
   }
 
   create() {
-    this.scene.start(KEY.SCENE.MAIN);
+    this.scene.start(KEY.SCENE.GAME);
   }
 }

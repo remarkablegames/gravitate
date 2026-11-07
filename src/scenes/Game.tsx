@@ -25,7 +25,7 @@ export class Game extends Phaser.Scene {
   private lastGravityUpdate = 0;
 
   constructor() {
-    super(KEY.SCENE.MAIN);
+    super(KEY.SCENE.GAME);
   }
 
   create() {
