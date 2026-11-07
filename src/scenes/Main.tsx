@@ -13,12 +13,16 @@ import {
 } from '../constants';
 import { Arrow, Player } from '../sprites';
 
+const GRAVITY_UPDATE_COOLDOWN_MS = 500;
+
 export class Main extends Phaser.Scene {
   private groundLayer!: Phaser.Tilemaps.TilemapLayer;
   private player!: Player;
+
+  private gravity = 500;
   private gravityDirection: Direction = DIRECTION.DOWN;
-  private lastGravityReverse = 0;
   private isPlayerDead = false;
+  private lastGravityUpdate = 0;
 
   constructor() {
     super(KEY.SCENE.MAIN);
@@ -40,6 +44,8 @@ export class Main extends Phaser.Scene {
       false,
     ) as Phaser.Tilemaps.TilemapLayer;
     const foregroundLayer = map.createLayer(TILEMAP_LAYER.FOREGROUND, tileset);
+
+    this.gravity = this.physics.world.gravity.y;
 
     // Render arrows
     const arrows: Arrow[] = [];
@@ -107,24 +113,24 @@ export class Main extends Phaser.Scene {
       | Phaser.Tilemaps.Tile,
   ) => {
     const { now } = this.time;
-    if (now - this.lastGravityReverse < 500) {
+    if (now - this.lastGravityUpdate < GRAVITY_UPDATE_COOLDOWN_MS) {
       return;
     }
-    this.lastGravityReverse = now;
+    this.lastGravityUpdate = now;
     this.gravityDirection = (arrow as Arrow).direction;
 
     switch (this.gravityDirection) {
       case DIRECTION.DOWN:
-        this.physics.world.gravity.set(0, 500);
+        this.physics.world.gravity.set(0, this.gravity);
         break;
       case DIRECTION.UP:
-        this.physics.world.gravity.set(0, -500);
+        this.physics.world.gravity.set(0, -this.gravity);
         break;
       case DIRECTION.LEFT:
-        this.physics.world.gravity.set(-500, 0);
+        this.physics.world.gravity.set(-this.gravity, 0);
         break;
       case DIRECTION.RIGHT:
-        this.physics.world.gravity.set(500, 0);
+        this.physics.world.gravity.set(this.gravity, 0);
         break;
     }
 

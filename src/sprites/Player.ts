@@ -12,6 +12,8 @@ type Cursors = Record<
   Phaser.Input.Keyboard.Key
 >;
 
+const PLAYER_VELOCITY = 250;
+
 export class Player extends Phaser.Physics.Arcade.Sprite {
   declare body: Phaser.Physics.Arcade.Body;
   private cursors: Cursors;
@@ -136,16 +138,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private jump() {
     switch (this.gravityDirection) {
       case DIRECTION.DOWN:
-        this.setVelocityY(-250);
+        this.setVelocityY(-PLAYER_VELOCITY);
         break;
       case DIRECTION.UP:
-        this.setVelocityY(250);
+        this.setVelocityY(PLAYER_VELOCITY);
         break;
       case DIRECTION.LEFT:
-        this.setVelocityX(250);
+        this.setVelocityX(PLAYER_VELOCITY);
         break;
       case DIRECTION.RIGHT:
-        this.setVelocityX(-250);
+        this.setVelocityX(-PLAYER_VELOCITY);
         break;
     }
   }
