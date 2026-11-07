@@ -3,10 +3,17 @@ import { render } from 'phaser-jsx';
 import type { RefObject } from 'react';
 
 import { HelpText } from '../components';
-import { KEY, TILEMAP_LAYER, TILEMAP_OBJECT, TILESET_NAME } from '../constants';
-import { Player } from '../sprites';
+import {
+  type ArrowDirection,
+  KEY,
+  TILEMAP_LAYER,
+  TILEMAP_OBJECT,
+  TILESET_NAME,
+} from '../constants';
+import { Arrow, Player } from '../sprites';
 
 export class Main extends Phaser.Scene {
+  private arrows: Arrow[] = [];
   private groundLayer!: Phaser.Tilemaps.TilemapLayer;
   private player!: Player;
   private isPlayerDead = false;
@@ -31,14 +38,19 @@ export class Main extends Phaser.Scene {
     ) as Phaser.Tilemaps.TilemapLayer;
     const foregroundLayer = map.createLayer(TILEMAP_LAYER.FOREGROUND, tileset);
 
-    // Render the arrow at the location of the "Up" object in the Tiled map
-    const upPoint = map.findObject(
-      TILEMAP_LAYER.OBJECTS,
-      ({ name }) => name === TILEMAP_OBJECT.UP,
-    );
-    if (upPoint) {
-      this.add.sprite(upPoint.x!, upPoint.y!, KEY.IMAGE.ARROW).setOrigin(0, 0);
-    }
+    // Render arrows
+    map.getObjectLayer('Objects')?.objects.forEach((obj) => {
+      if (obj.type === TILEMAP_OBJECT.ARROW) {
+        this.arrows.push(
+          new Arrow(
+            this,
+            obj.x!,
+            obj.y!,
+            obj.name.toLowerCase() as ArrowDirection,
+          ),
+        );
+      }
+    });
 
     // Treat every non-empty Ground tile as solid
     this.groundLayer.setCollisionByExclusion([-1, 0]);
@@ -98,12 +110,14 @@ export class Main extends Phaser.Scene {
       this.scale.height,
     );
     this.cameras.main.ignore(helpText);
-    uiCamera.ignore([
+    const ignoreList: Phaser.GameObjects.GameObject[] = [
       backgroundLayer,
       this.groundLayer,
       foregroundLayer,
       this.player,
-    ]);
+      ...this.arrows,
+    ];
+    uiCamera.ignore(ignoreList);
 
     // The physics debug graphic is a world-space object, so the UI camera would
     // draw a second, unscaled copy of every body at the top-left of the screen

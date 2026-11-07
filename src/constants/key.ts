@@ -1,5 +1,6 @@
 export const IMAGE = {
   TILES: 'TILES',
+  ARROW: 'ARROW',
 } as const;
 
 export const SCENE = {

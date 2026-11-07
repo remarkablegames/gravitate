@@ -9,8 +9,5 @@ export const TILEMAP_LAYER = {
 
 export const TILEMAP_OBJECT = {
   SPAWN: 'Spawn',
-} as const;
-
-export const TILE = {
-  BOX: 56,
+  ARROW: 'Arrow',
 } as const;

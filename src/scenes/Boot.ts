@@ -16,6 +16,8 @@ export class Boot extends Scene {
     this.load.image(KEY.IMAGE.TILES, 'tilemaps/tileset.png');
 
     this.load.tilemapTiledJSON(KEY.TILEMAP.LEVEL_0, 'tilemaps/level0.json');
+
+    this.load.image(KEY.IMAGE.ARROW, 'sprites/arrow.png');
   }
 
   create() {

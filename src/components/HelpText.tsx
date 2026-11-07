@@ -1,15 +1,15 @@
 import type Phaser from 'phaser';
 import { type GameObjectProps, Text } from 'phaser-jsx';
 
-type HelpTextProps = Pick<GameObjectProps<Phaser.GameObjects.Text>, 'ref'>;
+type Props = Pick<GameObjectProps<Phaser.GameObjects.Text>, 'ref'>;
 
 /**
  * Help text that has a "fixed" position on the screen.
  */
-export function HelpText({ ref }: HelpTextProps) {
+export function HelpText(props: Props) {
   return (
     <Text
-      ref={ref}
+      ref={props.ref}
       x={2}
       y={0}
       text={['WASD or arrow keys to move & jump'].join('\n')}
@@ -19,8 +19,6 @@ export function HelpText({ ref }: HelpTextProps) {
         font: '18px monospace',
         padding: { x: 16, y: 8 },
       }}
-      scrollFactorX={0}
-      scrollFactorY={0}
     />
   );
 }
