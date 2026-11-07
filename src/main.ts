@@ -2,12 +2,9 @@ import { Game, Scale } from 'phaser';
 
 import * as scenes from './scenes';
 
-/**
- * https://rexrainbow.github.io/phaser3-rex-notes/docs/site/game/
- */
 new Game({
-  width: 1200, // 1024
-  height: 600, // 768
+  width: 1200,
+  height: 600,
   title: 'Gravitate',
   url: import.meta.env.VITE_APP_HOMEPAGE,
   version: import.meta.env.VITE_APP_VERSION,
