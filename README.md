@@ -22,6 +22,7 @@ Or download for desktop:
 ## Credits
 
 - [Sci-fi Platformer - 16x16 Asset Pack](https://wrabitart.itch.io/sci-fi-platformer-asset-pack)
+- [Pixelart Arrow Icons Pack](https://ibingames.itch.io/pixelart-arrow-icons-pack)
 
 ## Prerequisites
 
