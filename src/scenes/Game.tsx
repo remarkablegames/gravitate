@@ -69,6 +69,25 @@ export class Game extends Phaser.Scene {
     // Treat every non-empty ground tile as solid
     this.groundLayer.setCollisionByExclusion([-1, 0]);
 
+    // Shrink each solid tile's collision box (anchored to its top-left corner)
+    this.groundLayer.forEachTile((tile) => {
+      if (!tile.collides) {
+        return;
+      }
+
+      const tileData = tile.getTileData() as {
+        objectgroup: { objects: { width: number; height: number }[] };
+      } | null;
+      if (!tileData) {
+        return;
+      }
+
+      const { width, height } = tileData.objectgroup.objects[0] ?? {};
+      if (width && height) {
+        tile.setSize(width, height, tile.baseWidth, tile.baseHeight);
+      }
+    });
+
     // Spawn player
     const spawnPoint = map.findObject(
       TILEMAP_LAYER.OBJECTS,
