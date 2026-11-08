@@ -63,7 +63,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
           start: 0,
           end: 4,
         }),
-        frameRate: 3,
+        frameRate: 6,
         repeat: -1,
       });
     }
