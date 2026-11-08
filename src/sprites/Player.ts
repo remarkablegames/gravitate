@@ -38,8 +38,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.setDrag(500, 0)
       .setMaxVelocity(150, 200)
-      .setSize(14, 16)
-      .setOffset(8, 7);
+      .setSize(6, 13)
+      .setOffset(13, 10);
 
     this.scene.add.existing(this);
   }
