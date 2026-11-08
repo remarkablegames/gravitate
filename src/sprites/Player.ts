@@ -14,6 +14,27 @@ type Cursors = Record<
 
 const PLAYER_VELOCITY = 250;
 
+/**
+ * Collision box (size and offset) for each gravity direction, aligned to the
+ * player sprite after it is rotated/flipped to match the gravity.
+ */
+const BODY_CONFIG: Record<
+  Direction,
+  { width: number; height: number; offsetX: number; offsetY: number }
+> = {
+  [DIRECTION.DOWN]: { width: 6, height: 13, offsetX: 13, offsetY: 10 },
+  [DIRECTION.UP]: { width: 6, height: 13, offsetX: 13, offsetY: 9 },
+  [DIRECTION.LEFT]: { width: 13, height: 6, offsetX: 9, offsetY: 13 },
+  [DIRECTION.RIGHT]: { width: 13, height: 6, offsetX: 10, offsetY: 13 },
+};
+
+const GRAVITY_ROTATION: Record<Direction, number> = {
+  [DIRECTION.DOWN]: 0,
+  [DIRECTION.UP]: 0,
+  [DIRECTION.LEFT]: Math.PI / 2,
+  [DIRECTION.RIGHT]: -Math.PI / 2,
+};
+
 export class Player extends Phaser.Physics.Arcade.Sprite {
   declare body: Phaser.Physics.Arcade.Body;
   private cursors: Cursors;
@@ -35,13 +56,34 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   private enablePhysics() {
     this.scene.physics.world.enable(this);
-
-    this.setDrag(500, 0)
-      .setMaxVelocity(150, 200)
-      .setSize(6, 13)
-      .setOffset(13, 10);
-
     this.scene.add.existing(this);
+
+    this.setGravityDirection(this.gravityDirection);
+  }
+
+  /**
+   * Rotate/flip the sprite and resize the collision box so the player stands
+   * on the surface the gravity is pulling them towards.
+   */
+  setGravityDirection(direction: Direction) {
+    this.gravityDirection = direction;
+
+    const isSideways =
+      direction === DIRECTION.LEFT || direction === DIRECTION.RIGHT;
+
+    this.setRotation(GRAVITY_ROTATION[direction]);
+    this.setFlipX(false);
+    this.setFlipY(direction === DIRECTION.UP);
+
+    // Drag and max velocity apply to the walking axis, so swap them when the
+    // walking axis is vertical.
+    this.setDrag(isSideways ? 0 : 500, isSideways ? 500 : 0);
+    this.setMaxVelocity(isSideways ? 200 : 150, isSideways ? 150 : 200);
+    this.setAcceleration(0, 0);
+
+    const { width, height, offsetX, offsetY } = BODY_CONFIG[direction];
+    this.body.setSize(width, height);
+    this.body.setOffset(offsetX, offsetY);
   }
 
   private createCursorKeys() {
@@ -82,43 +124,66 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   update() {
-    const acceleration = this.body.blocked.down ? 300 : 100;
-
     // Only allow the player to jump if they are on the ground (relative to gravity)
     const isOnGround = this.isOnGround();
-    const jumpKey = this.cursors.up.isDown || this.cursors.w.isDown;
+    const acceleration = isOnGround ? 300 : 100;
 
-    if (isOnGround && jumpKey) {
+    if (isOnGround && this.isJumpPressed()) {
       this.jump();
     }
 
-    // Apply horizontal acceleration when left or right are applied
-    switch (true) {
-      case this.cursors.left.isDown:
-      case this.cursors.a.isDown:
-        this.setFlipX(true);
-        this.setAccelerationX(-acceleration);
-        break;
+    const isSideways =
+      this.gravityDirection === DIRECTION.LEFT ||
+      this.gravityDirection === DIRECTION.RIGHT;
+    const walkDirection = this.getWalkDirection();
 
-      case this.cursors.right.isDown:
-      case this.cursors.d.isDown:
-        this.setFlipX(false);
-        this.setAccelerationX(acceleration);
-        break;
+    // Walk along the axis perpendicular to gravity
+    if (isSideways) {
+      this.setAccelerationY(walkDirection * acceleration);
+    } else {
+      this.setAccelerationX(walkDirection * acceleration);
+    }
 
-      default:
-        this.setAccelerationX(0);
+    // Face the direction of travel along the player's local horizontal axis,
+    // including when the player is rotated against a wall.
+    const left = this.cursors.left.isDown || this.cursors.a.isDown;
+    const right = this.cursors.right.isDown || this.cursors.d.isDown;
+
+    if (left) {
+      this.setFlipX(true);
+    } else if (right) {
+      this.setFlipX(false);
     }
 
     // Update the animation/texture based on the state of the player
     if (isOnGround) {
-      this.anims.play(
-        this.body.velocity.x ? ANIMATION.RUN : ANIMATION.IDLE,
-        true,
-      );
+      const velocity = isSideways ? this.body.velocity.y : this.body.velocity.x;
+
+      this.anims.play(velocity !== 0 ? ANIMATION.RUN : ANIMATION.IDLE, true);
     } else {
       this.anims.stop();
       this.setTexture(KEY.SPRITESHEET.PLAYER, 10);
+    }
+  }
+
+  private isJumpPressed() {
+    // Up always jumps, regardless of the gravity direction
+    return this.cursors.up.isDown || this.cursors.w.isDown;
+  }
+
+  private getWalkDirection() {
+    const left = this.cursors.left.isDown || this.cursors.a.isDown;
+    const right = this.cursors.right.isDown || this.cursors.d.isDown;
+
+    // Left/right move the player along their local horizontal axis. When
+    // gravity pulls right, the player is rotated so their right is world up.
+    switch (this.gravityDirection) {
+      case DIRECTION.RIGHT:
+        return Number(left) - Number(right);
+      case DIRECTION.DOWN:
+      case DIRECTION.UP:
+      case DIRECTION.LEFT:
+        return Number(right) - Number(left);
     }
   }
 

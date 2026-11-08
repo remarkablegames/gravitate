@@ -191,8 +191,7 @@ export class Game extends Phaser.Scene {
         break;
     }
 
-    this.player.gravityDirection = this.gravityDirection;
-    this.player.toggleFlipY();
+    this.player.setGravityDirection(this.gravityDirection);
   };
 
   private handleExit = () => {
