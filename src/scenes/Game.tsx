@@ -19,6 +19,7 @@ const GRAVITY_UPDATE_COOLDOWN_MS = 500;
 export class Game extends Phaser.Scene {
   private groundLayer!: Phaser.Tilemaps.TilemapLayer;
   private player!: Player;
+  private tileDebugGraphics!: Phaser.GameObjects.Graphics;
 
   private gravity = 500;
   private gravityDirection: Direction = DIRECTION.DOWN;
@@ -69,24 +70,8 @@ export class Game extends Phaser.Scene {
     // Treat every non-empty ground tile as solid
     this.groundLayer.setCollisionByExclusion([-1, 0]);
 
-    // Shrink each solid tile's collision box (anchored to its top-left corner)
-    this.groundLayer.forEachTile((tile) => {
-      if (!tile.collides) {
-        return;
-      }
-
-      const tileData = tile.getTileData() as {
-        objectgroup: { objects: { width: number; height: number }[] };
-      } | null;
-      if (!tileData) {
-        return;
-      }
-
-      const { width, height } = tileData.objectgroup.objects[0] ?? {};
-      if (width && height) {
-        tile.setSize(width, height, tile.baseWidth, tile.baseHeight);
-      }
-    });
+    this.resizeTiles();
+    this.renderTileDebug();
 
     // Spawn player
     const spawnPoint = map.findObject(
@@ -114,12 +99,49 @@ export class Game extends Phaser.Scene {
 
     this.fitCameraToMap(map);
 
-    this.createHelpText(
+    this.renderHelpText(
       backgroundLayer,
       this.groundLayer,
       foregroundLayer,
       ...arrows,
     );
+  }
+
+  /**
+   * Shrink each solid tile's collision box (anchored to its top-left corner).
+   */
+  private resizeTiles() {
+    this.groundLayer.forEachTile((tile) => {
+      if (!tile.collides) {
+        return;
+      }
+
+      const tileData = tile.getTileData() as {
+        objectgroup: { objects: { width: number; height: number }[] };
+      } | null;
+      if (!tileData) {
+        return;
+      }
+
+      const { width, height } = tileData.objectgroup.objects[0] ?? {};
+      if (!width || !height) {
+        return;
+      }
+
+      let tileWidth = width;
+      let tileHeight = height;
+
+      const rotation = Math.abs(tile.rotation);
+      if (
+        Math.abs(rotation - Math.PI / 2) < 1e-6 ||
+        Math.abs(rotation - (3 * Math.PI) / 2) < 1e-6
+      ) {
+        tileWidth = height;
+        tileHeight = width;
+      }
+
+      tile.setSize(tileWidth, tileHeight, tile.baseWidth, tile.baseHeight);
+    });
   }
 
   private fitCameraToMap(map: Phaser.Tilemaps.Tilemap) {
@@ -185,7 +207,7 @@ export class Game extends Phaser.Scene {
     }
   };
 
-  private createHelpText(...ignoreList: Phaser.GameObjects.GameObject[]) {
+  private renderHelpText(...ignoreList: Phaser.GameObjects.GameObject[]) {
     const helpTextRef = useRef<Phaser.GameObjects.Text>();
     render(<HelpText ref={helpTextRef} text={this.level.helpText} />, this);
 
@@ -207,7 +229,30 @@ export class Game extends Phaser.Scene {
     // Don't draw a second copy of every body since physics debug graphic is a world-space object
     if (this.physics.world.drawDebug) {
       uiCamera.ignore(this.physics.world.debugGraphic);
+      uiCamera.ignore(this.tileDebugGraphics);
     }
+  }
+
+  /**
+   * Debug graphic for tile collision boxes (only draws when physics debug is enabled).
+   */
+  private renderTileDebug() {
+    this.tileDebugGraphics = this.add.graphics();
+    this.tileDebugGraphics.setVisible(false);
+
+    // F1 toggles the tile debug overlay
+    const tileDebugKey = this.input.keyboard!.addKey(
+      Phaser.Input.Keyboard.KeyCodes.F1,
+    );
+
+    tileDebugKey.on('down', () => {
+      this.tileDebugGraphics.setVisible(!this.tileDebugGraphics.visible);
+
+      if (this.tileDebugGraphics.visible) {
+        this.tileDebugGraphics.clear();
+        this.groundLayer.renderDebug(this.tileDebugGraphics);
+      }
+    });
   }
 
   update() {
