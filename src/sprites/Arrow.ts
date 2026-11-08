@@ -32,5 +32,15 @@ export class Arrow extends Phaser.Physics.Arcade.Sprite {
     this.setRotation(DIRECTION_ANGLE[direction]);
     this.setImmovable(true);
     this.body.setAllowGravity(false);
+
+    this.setAlpha(0.2);
+
+    this.scene.tweens.add({
+      targets: this,
+      alpha: 1,
+      duration: 700,
+      yoyo: true,
+      repeat: -1,
+    });
   }
 }

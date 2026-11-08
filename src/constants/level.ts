@@ -14,6 +14,6 @@ export const LEVELS: Level[] = [
   {
     level: 1,
     tilemap: 'level1',
-    helpText: 'Shift gravity with green arrow',
+    helpText: 'Use arrow to shift gravity',
   },
 ];
