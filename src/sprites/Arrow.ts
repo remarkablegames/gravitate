@@ -9,6 +9,11 @@ const DIRECTION_ANGLE: Record<Direction, number> = {
   right: Math.PI / 2,
 };
 
+const DISPLAY_SIZE = {
+  WIDTH: 8,
+  HEIGHT: 14,
+};
+
 export class Arrow extends Phaser.Physics.Arcade.Sprite {
   declare body: Phaser.Physics.Arcade.Body;
   readonly direction: Direction;
@@ -19,22 +24,26 @@ export class Arrow extends Phaser.Physics.Arcade.Sprite {
     y: number,
     direction: Direction = DIRECTION.UP,
     texture = KEY.IMAGE.ARROW,
-    frame = 0,
   ) {
-    super(scene, x, y, texture, frame);
+    super(scene, x, y, texture);
 
     scene.add.existing(this);
     scene.physics.world.enable(this);
 
     this.direction = direction;
-    this.setOrigin(0.5);
-    this.setScale(8 / this.width);
-    this.setRotation(DIRECTION_ANGLE[direction]);
     this.setImmovable(true);
     this.body.setAllowGravity(false);
+    this.setOrigin(0.5);
+
+    // Swap hitbox width and height when horizontal
+    if (direction === DIRECTION.LEFT || direction === DIRECTION.RIGHT) {
+      this.body.setSize(this.displayHeight, this.displayWidth);
+    }
+
+    this.setDisplaySize(DISPLAY_SIZE.WIDTH, DISPLAY_SIZE.HEIGHT);
+    this.setRotation(DIRECTION_ANGLE[direction]);
 
     this.setAlpha(0.2);
-
     this.scene.tweens.add({
       targets: this,
       alpha: 1,
