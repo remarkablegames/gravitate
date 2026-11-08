@@ -22,6 +22,9 @@ export class Boot extends Scene {
   }
 
   create() {
-    this.scene.start(KEY.SCENE.GAME);
+    const level = Number(
+      new URLSearchParams(window.location.search).get('level'),
+    );
+    this.scene.start(KEY.SCENE.GAME, { level });
   }
 }

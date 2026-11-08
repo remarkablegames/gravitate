@@ -96,3 +96,11 @@ Your game is ready to be deployed!
 Builds the game and compresses the contents into a ZIP archive in the `dist` folder.
 
 Your game can be uploaded to your server, [itch.io](https://itch.io/), etc.
+
+## Testing
+
+Start a level by appending `?level=<number>` to the URL:
+
+```
+http://localhost:5173/?level=0
+```
