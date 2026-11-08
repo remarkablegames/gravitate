@@ -87,7 +87,7 @@ export class Game extends Phaser.Scene {
     const exits: Exit[] = [];
     map.getObjectLayer(TILEMAP_LAYER.OBJECTS)?.objects.forEach((obj) => {
       if (obj.name === TILEMAP_OBJECT.EXIT) {
-        exits.push(new Exit(this, obj.x!, obj.y!));
+        exits.push(new Exit(this, obj.x!, obj.y!, obj.rotation ?? 0));
       }
     });
 
