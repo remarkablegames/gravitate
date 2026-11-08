@@ -16,4 +16,10 @@ export const LEVELS: Level[] = [
     tilemap: 'level1',
     helpText: 'Use arrow to shift gravity',
   },
+
+  {
+    level: 2,
+    tilemap: 'level2',
+    helpText: 'Break free from the chain',
+  },
 ];
