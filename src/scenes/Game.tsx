@@ -16,8 +16,17 @@ import { Arrow, Exit, Player } from '../sprites';
 
 const GRAVITY_UPDATE_COOLDOWN_MS = 500;
 
+interface TileCollisionObject {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export class Game extends Phaser.Scene {
   private groundLayer!: Phaser.Tilemaps.TilemapLayer;
+  private spikesLayer!: Phaser.Tilemaps.TilemapLayer;
+  private spikeHitboxes!: Phaser.Physics.Arcade.StaticGroup;
   private player!: Player;
   private tileDebugGraphics!: Phaser.GameObjects.Graphics;
 
@@ -44,10 +53,17 @@ export class Game extends Phaser.Scene {
     const map = this.make.tilemap({ key: this.level.tilemap });
     const tileset = map.addTilesetImage(TILESET_NAME, KEY.IMAGE.TILES)!;
 
-    // Render background, ground, and foreground layers
+    // Render background, ground, spikes, and foreground layers
     const backgroundLayer = map.createLayer(TILEMAP_LAYER.BACKGROUND, tileset);
     this.groundLayer = map.createLayer(
       TILEMAP_LAYER.GROUND,
+      tileset,
+      undefined,
+      undefined,
+      false,
+    ) as Phaser.Tilemaps.TilemapLayer;
+    this.spikesLayer = map.createLayer(
+      TILEMAP_LAYER.SPIKES,
       tileset,
       undefined,
       undefined,
@@ -83,6 +99,14 @@ export class Game extends Phaser.Scene {
     // Collide player against ground layer
     this.physics.world.addCollider(this.player, this.groundLayer);
 
+    // Kill player when they touch a spike
+    this.spikeHitboxes = this.createSpikeHitboxes(this.spikesLayer);
+    this.physics.world.addOverlap(
+      this.player,
+      this.spikeHitboxes,
+      this.killPlayer,
+    );
+
     // Place exit
     const exits: Exit[] = [];
     map.getObjectLayer(TILEMAP_LAYER.OBJECTS)?.objects.forEach((obj) => {
@@ -102,6 +126,7 @@ export class Game extends Phaser.Scene {
     this.renderHelpText(
       backgroundLayer,
       this.groundLayer,
+      this.spikesLayer,
       foregroundLayer,
       ...arrows,
     );
@@ -142,6 +167,106 @@ export class Game extends Phaser.Scene {
 
       tile.setSize(tileWidth, tileHeight, tile.baseWidth, tile.baseHeight);
     });
+  }
+
+  /**
+   * Create invisible static bodies from the collision boxes defined for each
+   * spike tile in the tileset, so the hitboxes match the sprites exactly.
+   */
+  private createSpikeHitboxes(layer: Phaser.Tilemaps.TilemapLayer) {
+    const hitboxes = this.physics.add.staticGroup();
+
+    layer.forEachTile((tile) => {
+      if (tile.index < 0) {
+        return;
+      }
+
+      const collisionObject = this.getTileCollisionObject(tile);
+      if (!collisionObject) {
+        return;
+      }
+
+      const bounds = this.getTileCollisionBounds(layer, tile, collisionObject);
+
+      const hitbox = this.add.zone(
+        bounds.x + bounds.width / 2,
+        bounds.y + bounds.height / 2,
+        bounds.width,
+        bounds.height,
+      );
+
+      this.physics.add.existing(hitbox, true);
+      hitboxes.add(hitbox);
+    });
+
+    return hitboxes;
+  }
+
+  private getTileCollisionObject(tile: Phaser.Tilemaps.Tile) {
+    const tileData = tile.getTileData() as {
+      objectgroup?: { objects: TileCollisionObject[] };
+    } | null;
+
+    const object = tileData?.objectgroup?.objects[0];
+    if (!object?.width || !object.height) {
+      return null;
+    }
+
+    return object;
+  }
+
+  private getTileCollisionBounds(
+    layer: Phaser.Tilemaps.TilemapLayer,
+    tile: Phaser.Tilemaps.Tile,
+    object: TileCollisionObject,
+  ) {
+    const halfWidth = tile.baseWidth / 2;
+    const halfHeight = tile.baseHeight / 2;
+
+    // Tiled collision objects are relative to the tile's top-left. Work in
+    // tile-center coordinates so the box can be flipped and rotated the same
+    // way the tile is rendered.
+    let left = object.x - halfWidth;
+    let right = left + object.width;
+    let top = object.y - halfHeight;
+    let bottom = top + object.height;
+
+    if (tile.flipX) {
+      [left, right] = [-right, -left];
+    }
+
+    if (tile.flipY) {
+      [top, bottom] = [-bottom, -top];
+    }
+
+    if (tile.rotation !== 0) {
+      const cos = Math.cos(tile.rotation);
+      const sin = Math.sin(tile.rotation);
+      const corners: [number, number][] = [
+        [left, top],
+        [right, top],
+        [right, bottom],
+        [left, bottom],
+      ];
+      const rotated = corners.map(([x, y]) => ({
+        x: x * cos - y * sin,
+        y: x * sin + y * cos,
+      }));
+
+      left = Math.min(...rotated.map(({ x }) => x));
+      right = Math.max(...rotated.map(({ x }) => x));
+      top = Math.min(...rotated.map(({ y }) => y));
+      bottom = Math.max(...rotated.map(({ y }) => y));
+    }
+
+    const origin = layer.tileToWorldXY(tile.x, tile.y);
+
+    return {
+      x: origin.x + left + halfWidth,
+      y: origin.y + top + halfHeight,
+      width: right - left,
+      height: bottom - top,
+    };
   }
 
   private fitCameraToMap(map: Phaser.Tilemaps.Tilemap) {
@@ -206,6 +331,25 @@ export class Game extends Phaser.Scene {
     }
   };
 
+  private killPlayer = () => {
+    if (this.isPlayerDead || this.isExiting) {
+      return;
+    }
+
+    this.isPlayerDead = true;
+
+    this.cameras.main.shake(100, 0.05);
+    this.cameras.main.fade(250, 0, 0, 0);
+
+    // Freeze player to leave them on the screen while fading
+    this.player.body.moves = false;
+
+    this.cameras.main.once('camerafadeoutcomplete', () => {
+      this.player.destroy();
+      this.scene.restart();
+    });
+  };
+
   private renderHelpText(...ignoreList: Phaser.GameObjects.GameObject[]) {
     const helpTextRef = useRef<Phaser.GameObjects.Text>();
     render(<HelpText ref={helpTextRef} text={this.level.helpText} />, this);
@@ -262,18 +406,7 @@ export class Game extends Phaser.Scene {
     this.player.update();
 
     if (this.player.y > this.groundLayer.height) {
-      this.isPlayerDead = true;
-
-      this.cameras.main.shake(100, 0.05);
-      this.cameras.main.fade(250, 0, 0, 0);
-
-      // Freeze player to leave them on the screen while fading
-      this.player.body.moves = false;
-
-      this.cameras.main.once('camerafadeoutcomplete', () => {
-        this.player.destroy();
-        this.scene.restart();
-      });
+      this.killPlayer();
     }
   }
 }
