@@ -338,7 +338,7 @@ export class Game extends Phaser.Scene {
 
     this.isPlayerDead = true;
 
-    this.cameras.main.shake(100, 0.05);
+    this.cameras.main.shake(100, 0.001);
     this.cameras.main.fade(250, 0, 0, 0);
 
     // Freeze player to leave them on the screen while fading

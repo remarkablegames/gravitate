@@ -8,8 +8,9 @@ export interface Level {
  * Legend:
  * ☺       — Spawn/player
  * ◎       — Exit
+ * ▲       — Spike
  * ↑/↓/←/→ — Gravity directions
- * ==/===  — Platforms
+ * =       — Platforms
  * #       — Walls
  * .       — Empty
  */
@@ -73,6 +74,26 @@ export const LEVELS: Level[] = [
   /* 2
   +----------------+
   |################|
+  |#.............←#|
+  |#..............#|
+  |#▲............▲#|
+  |#◎............▲#|
+  |#▲............▲#|
+  |#..............#|
+  |#..............#|
+  |#▲▲▲▲▲..☺.....→#|
+  |################|
+  +----------------+
+  */
+  {
+    level: 2,
+    tilemap: 'level2',
+    helpText: 'Watch out for spikes',
+  },
+
+  /* 3
+  +----------------+
+  |################|
   |#.......◎......#|
   |#↓.............#|
   |#..............#|
@@ -85,12 +106,12 @@ export const LEVELS: Level[] = [
   +----------------+
   */
   {
-    level: 2,
-    tilemap: 'level2',
+    level: 3,
+    tilemap: 'level3',
     helpText: 'Break free from the chain',
   },
 
-  /* 3
+  /* 4
   +----------------+
   |################|
   |#..............#|
@@ -105,12 +126,12 @@ export const LEVELS: Level[] = [
   +----------------+
   */
   {
-    level: 3,
-    tilemap: 'level3',
+    level: 4,
+    tilemap: 'level4',
     helpText: 'Jump on it!',
   },
 
-  /* 4
+  /* 5
   +----------------+
   |################|
   |#............↓.#|
@@ -125,12 +146,12 @@ export const LEVELS: Level[] = [
   +----------------+
   */
   {
-    level: 4,
-    tilemap: 'level4',
+    level: 5,
+    tilemap: 'level5',
     helpText: 'Walk on walls',
   },
 
-  /* 5
+  /* 6
   +----------------+
   |################|
   |#..............#|
@@ -145,8 +166,8 @@ export const LEVELS: Level[] = [
   +----------------+
   */
   {
-    level: 5,
-    tilemap: 'level5',
+    level: 6,
+    tilemap: 'level6',
     helpText: 'Think outside the box',
   },
 ];
