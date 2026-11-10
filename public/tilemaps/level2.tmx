@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="16" height="10" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="5">
+<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="16" height="10" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="6">
  <editorsettings>
   <export target="level2.json" format="json"/>
  </editorsettings>
@@ -189,23 +189,23 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,2684354632,0,0,0,0,0,0,0,0,0,0,0,0,1610612808,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,1610612808,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,1610612808,0,
-0,2684354632,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,72,72,72,72,72,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
  <layer id="4" name="Foreground" width="16" height="10">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,31,32,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,49,50,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,536870943,536870961,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,536870944,536870962,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -213,16 +213,19 @@
 </data>
  </layer>
  <objectgroup id="3" name="Objects">
-  <object id="1" name="Spawn" x="128" y="136">
+  <object id="1" name="Spawn" x="48" y="136">
    <point/>
   </object>
-  <object id="3" name="Right" type="Arrow" x="224" y="128" rotation="-90">
+  <object id="3" name="Right" type="Arrow" x="128" y="136" rotation="-90">
    <point/>
   </object>
-  <object id="2" name="Exit" x="24" y="80" rotation="90">
+  <object id="2" name="Exit" x="128" y="26">
    <point/>
   </object>
-  <object id="4" name="Left" type="Arrow" x="224" y="32" rotation="90">
+  <object id="4" name="Left" type="Arrow" x="230" y="72" rotation="90">
+   <point/>
+  </object>
+  <object id="5" name="Down" type="Arrow" x="26" y="32">
    <point/>
   </object>
  </objectgroup>
