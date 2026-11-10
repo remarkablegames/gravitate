@@ -23,6 +23,7 @@ Or download for desktop:
 
 - [Sci-fi Platformer - 16x16 Asset Pack](https://wrabitart.itch.io/sci-fi-platformer-asset-pack)
 - [Pixelart Arrow Icons Pack](https://ibingames.itch.io/pixelart-arrow-icons-pack)
+- [Game Sounds](https://github.com/remarkablegames/game-sounds)
 
 ## Prerequisites
 
