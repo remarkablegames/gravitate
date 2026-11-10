@@ -49,6 +49,7 @@ export class Game extends Phaser.Scene {
   create() {
     this.isPlayerDead = false;
     this.isExiting = false;
+    this.gravityDirection = DIRECTION.DOWN;
 
     const map = this.make.tilemap({ key: this.level.tilemap });
     const tileset = map.addTilesetImage(TILESET_NAME, KEY.IMAGE.TILES)!;
