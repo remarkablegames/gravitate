@@ -299,7 +299,14 @@ export class Game extends Phaser.Scene {
       return;
     }
     this.lastGravityUpdate = now;
-    this.gravityDirection = (arrow as Arrow).direction;
+
+    const arrowDirection = (arrow as Arrow).direction;
+    if (this.gravityDirection === arrowDirection) {
+      return;
+    }
+
+    this.sound.play(KEY.AUDIO.SHIFT, { volume: 0.8 });
+    this.gravityDirection = arrowDirection;
 
     switch (this.gravityDirection) {
       case DIRECTION.DOWN:
@@ -322,6 +329,8 @@ export class Game extends Phaser.Scene {
   private handleExit = () => {
     if (!this.isExiting) {
       this.isExiting = true;
+      this.sound.stopByKey(KEY.AUDIO.WALK);
+      this.sound.play(KEY.AUDIO.EXIT);
       this.cameras.main.fade(250, 0, 0, 0);
 
       this.cameras.main.once('camerafadeoutcomplete', () => {
@@ -338,6 +347,8 @@ export class Game extends Phaser.Scene {
 
     this.isPlayerDead = true;
 
+    this.sound.stopByKey(KEY.AUDIO.WALK);
+    this.sound.play(KEY.AUDIO.DEATH);
     this.cameras.main.shake(100, 0.001);
     this.cameras.main.fade(250, 0, 0, 0);
 

@@ -13,6 +13,8 @@ type Cursors = Record<
 >;
 
 const PLAYER_VELOCITY = 250;
+const LAND_MIN_AIRBORNE_MS = 150;
+const WALK_SOUND_VOLUME = 0.3;
 
 /**
  * Collision box (size and offset) for each gravity direction, aligned to the
@@ -38,6 +40,9 @@ const GRAVITY_ROTATION: Record<Direction, number> = {
 export class Player extends Phaser.Physics.Arcade.Sprite {
   declare body: Phaser.Physics.Arcade.Body;
   private cursors: Cursors;
+  private walkSound: Phaser.Sound.BaseSound;
+  private wasOnGround = true;
+  private airborneSince = 0;
   gravityDirection: Direction = DIRECTION.DOWN;
 
   constructor(
@@ -50,6 +55,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     super(scene, x, y, texture, frame);
 
     this.cursors = this.createCursorKeys();
+    this.walkSound = scene.sound.add(KEY.AUDIO.WALK, {
+      loop: true,
+      volume: WALK_SOUND_VOLUME,
+      rate: 0.8,
+    });
     this.createAnimations();
     this.enablePhysics();
   }
@@ -79,7 +89,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // walking axis is vertical.
     this.setDrag(isSideways ? 0 : 500, isSideways ? 500 : 0);
     this.setMaxVelocity(isSideways ? 200 : 150, isSideways ? 150 : 200);
-    this.setAcceleration(0, 0);
+    this.setAcceleration(0);
 
     const { width, height, offsetX, offsetY } = BODY_CONFIG[direction];
     this.body.setSize(width, height);
@@ -159,11 +169,36 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (isOnGround) {
       const velocity = isSideways ? this.body.velocity.y : this.body.velocity.x;
 
-      this.anims.play(velocity !== 0 ? ANIMATION.RUN : ANIMATION.IDLE, true);
+      this.anims.play(velocity ? ANIMATION.RUN : ANIMATION.IDLE, true);
+
+      if (velocity && !this.walkSound.isPlaying) {
+        this.walkSound.play();
+      } else if (!velocity && this.walkSound.isPlaying) {
+        this.walkSound.stop();
+      }
+
+      // Only play a landing sound after a real fall, not when gravity shifts
+      // and the player is grounded again a frame later.
+      if (
+        !this.wasOnGround &&
+        this.scene.time.now - this.airborneSince > LAND_MIN_AIRBORNE_MS
+      ) {
+        this.scene.sound.play(KEY.AUDIO.LAND, { volume: 0.6 });
+      }
     } else {
       this.anims.stop();
       this.setTexture(KEY.SPRITESHEET.PLAYER, 10);
+
+      if (this.wasOnGround) {
+        this.airborneSince = this.scene.time.now;
+      }
+
+      if (this.walkSound.isPlaying) {
+        this.walkSound.stop();
+      }
     }
+
+    this.wasOnGround = isOnGround;
   }
 
   private isJumpPressed() {
@@ -201,6 +236,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   private jump() {
+    this.scene.sound.play(KEY.AUDIO.JUMP);
+
     switch (this.gravityDirection) {
       case DIRECTION.DOWN:
         this.setVelocityY(-PLAYER_VELOCITY);

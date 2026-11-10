@@ -16,6 +16,16 @@ export class Boot extends Scene {
     this.load.image(KEY.IMAGE.ARROW, 'sprites/arrow.png');
     this.load.image(KEY.IMAGE.TILES, 'tilemaps/tileset.png');
 
+    this.load.audio(KEY.AUDIO.DEATH, ['sounds/death.ogg', 'sounds/death.mp3']);
+    this.load.audio(KEY.AUDIO.JUMP, ['sounds/jump.ogg', 'sounds/jump.mp3']);
+    this.load.audio(KEY.AUDIO.LAND, ['sounds/land.ogg', 'sounds/land.mp3']);
+    this.load.audio(KEY.AUDIO.SHIFT, ['sounds/swing.ogg', 'sounds/swing.mp3']);
+    this.load.audio(KEY.AUDIO.EXIT, [
+      'sounds/powerup.ogg',
+      'sounds/powerup.mp3',
+    ]);
+    this.load.audio(KEY.AUDIO.WALK, ['sounds/walk.ogg', 'sounds/walk.mp3']);
+
     LEVELS.forEach(({ tilemap }) => {
       this.load.tilemapTiledJSON(tilemap, `tilemaps/${tilemap}.json`);
     });

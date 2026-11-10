@@ -1,3 +1,12 @@
+export const AUDIO = {
+  DEATH: 'DEATH',
+  EXIT: 'EXIT',
+  JUMP: 'JUMP',
+  LAND: 'LAND',
+  SHIFT: 'SHIFT',
+  WALK: 'WALK',
+} as const;
+
 export const IMAGE = {
   TILES: 'TILES',
   ARROW: 'ARROW',
