@@ -108,7 +108,7 @@ export const LEVELS: Level[] = [
   {
     level: 3,
     tilemap: 'level3',
-    helpText: 'Break free from the chain',
+    helpText: 'Break the chain',
   },
 
   /* 4
@@ -148,7 +148,7 @@ export const LEVELS: Level[] = [
   {
     level: 5,
     tilemap: 'level5',
-    helpText: 'Walk on walls',
+    helpText: 'Circular loop',
   },
 
   /* 6
