@@ -40,6 +40,14 @@ export class Game extends Phaser.Scene {
     this.level = LEVELS[level] ?? LEVELS[0];
   }
 
+  preload() {
+    // Prefetch next level's tilemap
+    const { tilemap } = LEVELS[this.level.level + 1] ?? {};
+    if (tilemap && !this.cache.tilemap.exists(tilemap)) {
+      this.load.tilemapTiledJSON(tilemap, `tilemaps/${tilemap}.json`);
+    }
+  }
+
   create() {
     this.isPlayerDead = false;
     this.isExiting = false;

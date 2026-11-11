@@ -3,6 +3,9 @@ import { Scene } from 'phaser';
 import { KEY, LEVELS } from '../constants';
 
 export class Boot extends Scene {
+  private level =
+    Number(new URLSearchParams(window.location.search).get('level')) || 0;
+
   constructor() {
     super(KEY.SCENE.BOOT);
   }
@@ -26,18 +29,14 @@ export class Boot extends Scene {
     ]);
     this.load.audio(KEY.AUDIO.WALK, ['sounds/walk.ogg', 'sounds/walk.mp3']);
 
-    LEVELS.forEach(({ tilemap }) => {
-      this.load.tilemapTiledJSON(tilemap, `tilemaps/${tilemap}.json`);
-    });
+    // Load initial level
+    const { tilemap } = LEVELS[this.level] || {};
+    this.load.tilemapTiledJSON(tilemap, `tilemaps/${tilemap}.json`);
   }
 
   create() {
-    const level = Number(
-      new URLSearchParams(window.location.search).get('level'),
-    );
-
     // Music loads in the background so it doesn't delay the game starting
     this.scene.launch(KEY.SCENE.MUSIC);
-    this.scene.start(KEY.SCENE.GAME, { level });
+    this.scene.start(KEY.SCENE.GAME, { level: this.level });
   }
 }
