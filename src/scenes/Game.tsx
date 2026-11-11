@@ -15,8 +15,6 @@ import {
 import { Arrow, Exit, Player } from '../sprites';
 
 const GRAVITY_UPDATE_COOLDOWN_MS = 500;
-const MUSIC_VOLUME = 0.8;
-const MUSIC_FADE_DURATION_MS = 1000;
 
 interface TileCollisionObject {
   x: number;
@@ -24,12 +22,6 @@ interface TileCollisionObject {
   width: number;
   height: number;
 }
-
-/**
- * Phaser's `BaseSound` type omits the runtime `volume` property that every
- * sound implementation provides.
- */
-type MusicTrack = Phaser.Sound.BaseSound & { volume: number };
 
 export class Game extends Phaser.Scene {
   private groundLayer!: Phaser.Tilemaps.TilemapLayer;
@@ -59,7 +51,7 @@ export class Game extends Phaser.Scene {
     this.isExiting = false;
     this.gravityDirection = DIRECTION.DOWN;
 
-    this.playMusic();
+    this.registry.set(KEY.DATA.MUSIC, this.level.music);
 
     const map = this.make.tilemap({ key: this.level.tilemap });
     const tileset = map.addTilesetImage(TILESET_NAME, KEY.IMAGE.TILES)!;
@@ -141,53 +133,6 @@ export class Game extends Phaser.Scene {
       foregroundLayer,
       ...arrows,
     );
-  }
-
-  /**
-   * Play the level's music, crossfading from any other track. Tracks shared by
-   * consecutive levels (or a level restart) keep playing uninterrupted.
-   */
-  private playMusic() {
-    const trackKey = this.level.music;
-
-    Object.values(KEY.MUSIC).forEach((key) => {
-      if (key === trackKey) {
-        return;
-      }
-
-      this.sound.getAll(key).forEach((sound) => {
-        if (!sound.isPlaying) {
-          return;
-        }
-
-        this.tweens.killTweensOf(sound);
-        this.tweens.add({
-          targets: sound,
-          volume: 0,
-          duration: MUSIC_FADE_DURATION_MS,
-          onComplete: () => sound.stop(),
-        });
-      });
-    });
-
-    const track = (this.sound.getAll(trackKey).at(0) ??
-      this.sound.add(trackKey, { loop: true, volume: 0 })) as MusicTrack;
-
-    // Cancel any fade that was interrupted by a scene restart
-    this.tweens.killTweensOf(track);
-
-    if (!track.isPlaying) {
-      track.volume = 0;
-      track.play();
-    }
-
-    if (Math.abs(track.volume - MUSIC_VOLUME) > 0.01) {
-      this.tweens.add({
-        targets: track,
-        volume: MUSIC_VOLUME,
-        duration: MUSIC_FADE_DURATION_MS,
-      });
-    }
   }
 
   /**

@@ -26,16 +26,6 @@ export class Boot extends Scene {
     ]);
     this.load.audio(KEY.AUDIO.WALK, ['sounds/walk.ogg', 'sounds/walk.mp3']);
 
-    this.load.audio(KEY.MUSIC.TO_THE_SPACE, [
-      'music/to_the_space.ogg',
-      'music/to_the_space.mp3',
-    ]);
-    this.load.audio(KEY.MUSIC.STARWAY, [
-      'music/starway.ogg',
-      'music/starway.mp3',
-    ]);
-    this.load.audio(KEY.MUSIC.ALIENS, ['music/aliens.ogg', 'music/aliens.mp3']);
-
     LEVELS.forEach(({ tilemap }) => {
       this.load.tilemapTiledJSON(tilemap, `tilemaps/${tilemap}.json`);
     });
@@ -45,6 +35,9 @@ export class Boot extends Scene {
     const level = Number(
       new URLSearchParams(window.location.search).get('level'),
     );
+
+    // Music loads in the background so it doesn't delay the game starting
+    this.scene.launch(KEY.SCENE.MUSIC);
     this.scene.start(KEY.SCENE.GAME, { level });
   }
 }

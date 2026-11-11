@@ -15,6 +15,10 @@ export const MUSIC = {
 
 export type MusicKey = (typeof MUSIC)[keyof typeof MUSIC];
 
+export const DATA = {
+  MUSIC: 'MUSIC',
+} as const;
+
 export const IMAGE = {
   TILES: 'TILES',
   ARROW: 'ARROW',
@@ -23,6 +27,7 @@ export const IMAGE = {
 export const SCENE = {
   BOOT: 'BOOT',
   GAME: 'GAME',
+  MUSIC: 'MUSIC',
 } as const;
 
 export const SPRITESHEET = {
