@@ -236,7 +236,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   private jump() {
-    this.scene.sound.play(KEY.AUDIO.JUMP);
+    this.scene.sound.play(KEY.AUDIO.JUMP, { volume: 0.8 });
 
     switch (this.gravityDirection) {
       case DIRECTION.DOWN:

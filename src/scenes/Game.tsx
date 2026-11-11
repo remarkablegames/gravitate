@@ -308,7 +308,7 @@ export class Game extends Phaser.Scene {
       return;
     }
 
-    this.sound.play(KEY.AUDIO.SHIFT, { volume: 0.8 });
+    this.sound.play(KEY.AUDIO.SHIFT, { volume: 0.6 });
     this.gravityDirection = arrowDirection;
 
     switch (this.gravityDirection) {
@@ -330,17 +330,19 @@ export class Game extends Phaser.Scene {
   };
 
   private handleExit = () => {
-    if (!this.isExiting) {
-      this.isExiting = true;
-      this.sound.stopByKey(KEY.AUDIO.WALK);
-      this.sound.play(KEY.AUDIO.EXIT);
-      this.cameras.main.fade(250, 0, 0, 0);
-
-      this.cameras.main.once('camerafadeoutcomplete', () => {
-        const nextLevel = this.level.level + 1;
-        this.scene.start(KEY.SCENE.GAME, { level: nextLevel });
-      });
+    if (this.isExiting) {
+      return;
     }
+
+    this.isExiting = true;
+    this.sound.stopByKey(KEY.AUDIO.WALK);
+    this.sound.play(KEY.AUDIO.EXIT, { volume: 0.7 });
+    this.cameras.main.fade(250, 0, 0, 0);
+
+    this.cameras.main.once('camerafadeoutcomplete', () => {
+      const nextLevel = this.level.level + 1;
+      this.scene.start(KEY.SCENE.GAME, { level: nextLevel });
+    });
   };
 
   private killPlayer = () => {
@@ -349,9 +351,8 @@ export class Game extends Phaser.Scene {
     }
 
     this.isPlayerDead = true;
-
     this.sound.stopByKey(KEY.AUDIO.WALK);
-    this.sound.play(KEY.AUDIO.DEATH);
+    this.sound.play(KEY.AUDIO.DEATH, { volume: 0.6 });
     this.cameras.main.shake(100, 0.001);
     this.cameras.main.fade(250, 0, 0, 0);
 
