@@ -210,18 +210,18 @@ export class Game extends Phaser.Scene {
       objectgroup?: { objects: TileCollisionObject[] };
     } | null;
 
-    const object = tileData?.objectgroup?.objects[0];
-    if (!object?.width || !object.height) {
+    const tileObject = tileData?.objectgroup?.objects[0];
+    if (!tileObject?.width || !tileObject.height) {
       return null;
     }
 
-    return object;
+    return tileObject;
   }
 
   private getTileCollisionBounds(
     layer: Phaser.Tilemaps.TilemapLayer,
     tile: Phaser.Tilemaps.Tile,
-    object: TileCollisionObject,
+    tileObject: TileCollisionObject,
   ) {
     const halfWidth = tile.baseWidth / 2;
     const halfHeight = tile.baseHeight / 2;
@@ -229,10 +229,10 @@ export class Game extends Phaser.Scene {
     // Tiled collision objects are relative to the tile's top-left. Work in
     // tile-center coordinates so the box can be flipped and rotated the same
     // way the tile is rendered.
-    let left = object.x - halfWidth;
-    let right = left + object.width;
-    let top = object.y - halfHeight;
-    let bottom = top + object.height;
+    let left = tileObject.x - halfWidth;
+    let right = left + tileObject.width;
+    let top = tileObject.y - halfHeight;
+    let bottom = top + tileObject.height;
 
     if (tile.flipX) {
       [left, right] = [-right, -left];
