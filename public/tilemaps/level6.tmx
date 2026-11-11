@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="16" height="10" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="8">
+<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="16" height="10" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="10">
  <editorsettings>
   <export target="level6.json" format="json"/>
  </editorsettings>
@@ -189,10 +189,10 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,2684354632,0,0,0,0,0,0,0,0,0,
+0,0,0,0,1610612808,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,1610612808,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,2684354632,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
@@ -216,16 +216,19 @@
   <object id="1" name="Spawn" x="48" y="136">
    <point/>
   </object>
-  <object id="3" name="Up" type="Arrow" x="224" y="128" rotation="-180">
+  <object id="3" name="Up" type="Arrow" x="232" y="132" rotation="-180">
    <point/>
   </object>
   <object id="2" name="Exit" x="128" y="56" rotation="-180">
    <point/>
   </object>
-  <object id="4" name="Right" type="Arrow" x="32" y="56" rotation="-90">
+  <object id="4" name="Left" type="Arrow" x="32" y="56" rotation="90">
    <point/>
   </object>
   <object id="6" name="Left" type="Arrow" x="184" y="80" rotation="90">
+   <point/>
+  </object>
+  <object id="9" name="Right" type="Arrow" x="32" y="96" rotation="-90">
    <point/>
   </object>
  </objectgroup>
