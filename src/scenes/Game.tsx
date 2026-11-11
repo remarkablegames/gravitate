@@ -438,7 +438,14 @@ export class Game extends Phaser.Scene {
 
     this.player.update();
 
-    if (this.player.y > this.groundLayer.height) {
+    // Kill player when it's out of bounds
+    const { width, height } = this.groundLayer;
+    if (
+      this.player.x < 0 ||
+      this.player.x > width ||
+      this.player.y < 0 ||
+      this.player.y > height
+    ) {
       this.killPlayer();
     }
   }
