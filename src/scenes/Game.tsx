@@ -17,7 +17,9 @@ const GRAVITY_UPDATE_COOLDOWN_MS = 300;
 
 export class Game extends Phaser.Scene {
   private groundLayer!: Phaser.Tilemaps.TilemapLayer;
+  private platformsLayer!: Phaser.Tilemaps.TilemapLayer;
   private spikesLayer!: Phaser.Tilemaps.TilemapLayer;
+  private platformHitboxes!: Phaser.Physics.Arcade.StaticGroup;
   private spikeHitboxes!: Phaser.Physics.Arcade.StaticGroup;
   private player!: Player;
   private tileDebugGraphics!: Phaser.GameObjects.Graphics;
@@ -41,6 +43,7 @@ export class Game extends Phaser.Scene {
   create() {
     this.isPlayerDead = false;
     this.isExiting = false;
+    this.gravity = this.physics.world.gravity.y;
     this.gravityDirection = DIRECTION.DOWN;
 
     this.registry.set(KEY.DATA.MUSIC, this.level.music);
@@ -48,8 +51,9 @@ export class Game extends Phaser.Scene {
     const map = this.make.tilemap({ key: this.level.tilemap });
     const tileset = map.addTilesetImage(TILESET_NAME, KEY.IMAGE.TILES)!;
 
-    // Render background, ground, spikes, and foreground layers
+    // Render background, ground, platforms, spikes, and foreground layers
     const backgroundLayer = map.createLayer(TILEMAP_LAYER.BACKGROUND, tileset);
+
     this.groundLayer = map.createLayer(
       TILEMAP_LAYER.GROUND,
       tileset,
@@ -57,6 +61,15 @@ export class Game extends Phaser.Scene {
       undefined,
       false,
     ) as Phaser.Tilemaps.TilemapLayer;
+
+    this.platformsLayer = map.createLayer(
+      TILEMAP_LAYER.PLATFORMS,
+      tileset,
+      undefined,
+      undefined,
+      false,
+    ) as Phaser.Tilemaps.TilemapLayer;
+
     this.spikesLayer = map.createLayer(
       TILEMAP_LAYER.SPIKES,
       tileset,
@@ -64,9 +77,13 @@ export class Game extends Phaser.Scene {
       undefined,
       false,
     ) as Phaser.Tilemaps.TilemapLayer;
+
     const foregroundLayer = map.createLayer(TILEMAP_LAYER.FOREGROUND, tileset);
 
-    this.gravity = this.physics.world.gravity.y;
+    // Treat every non-empty ground tile as solid
+    this.groundLayer.setCollisionByExclusion([-1, 0]);
+
+    this.renderTileDebug();
 
     // Render arrows
     const arrows: Arrow[] = [];
@@ -78,12 +95,6 @@ export class Game extends Phaser.Scene {
       }
     });
 
-    // Treat every non-empty ground tile as solid
-    this.groundLayer.setCollisionByExclusion([-1, 0]);
-
-    this.resizeTiles();
-    this.renderTileDebug();
-
     // Spawn player
     const spawnPoint = map.findObject(
       TILEMAP_LAYER.OBJECTS,
@@ -94,8 +105,12 @@ export class Game extends Phaser.Scene {
     // Collide player against ground layer
     this.physics.world.addCollider(this.player, this.groundLayer);
 
+    // Collide player against platforms using each tile's collision box
+    this.platformHitboxes = this.createTileHitboxes(this.platformsLayer);
+    this.physics.world.addCollider(this.player, this.platformHitboxes);
+
     // Kill player when they touch a spike
-    this.spikeHitboxes = this.createSpikeHitboxes(this.spikesLayer);
+    this.spikeHitboxes = this.createTileHitboxes(this.spikesLayer);
     this.physics.world.addOverlap(
       this.player,
       this.spikeHitboxes,
@@ -121,6 +136,7 @@ export class Game extends Phaser.Scene {
     this.renderHelpText(
       backgroundLayer,
       this.groundLayer,
+      this.platformsLayer,
       this.spikesLayer,
       foregroundLayer,
       ...arrows,
@@ -128,47 +144,15 @@ export class Game extends Phaser.Scene {
   }
 
   /**
-   * Shrink each solid tile's collision box (anchored to its top-left corner).
+   * Create invisible static bodies from the collision boxes defined for each tile in the tileset.
+   *
+   * @param layer - The Tilemap layer.
+   * @param fallbackToTileBounds - Whether tiles without a collision hitbox should fall back to the full tile bounds.
    */
-  private resizeTiles() {
-    this.groundLayer.forEachTile((tile) => {
-      if (!tile.collides) {
-        return;
-      }
-
-      const tileData = tile.getTileData() as {
-        objectgroup: { objects: { width: number; height: number }[] };
-      } | null;
-      if (!tileData) {
-        return;
-      }
-
-      const { width, height } = tileData.objectgroup.objects[0] ?? {};
-      if (!width || !height) {
-        return;
-      }
-
-      let tileWidth = width;
-      let tileHeight = height;
-
-      const rotation = Math.abs(tile.rotation);
-      if (
-        Math.abs(rotation - Math.PI / 2) < 1e-6 ||
-        Math.abs(rotation - (3 * Math.PI) / 2) < 1e-6
-      ) {
-        tileWidth = height;
-        tileHeight = width;
-      }
-
-      tile.setSize(tileWidth, tileHeight, tile.baseWidth, tile.baseHeight);
-    });
-  }
-
-  /**
-   * Create invisible static bodies from the collision boxes defined for each
-   * spike tile in the tileset, so the hitboxes match the sprites exactly.
-   */
-  private createSpikeHitboxes(layer: Phaser.Tilemaps.TilemapLayer) {
+  private createTileHitboxes(
+    layer: Phaser.Tilemaps.TilemapLayer,
+    fallbackToTileBounds = true,
+  ) {
     const hitboxes = this.physics.add.staticGroup();
 
     layer.forEachTile((tile) => {
@@ -177,11 +161,13 @@ export class Game extends Phaser.Scene {
       }
 
       const collisionObject = this.getTileCollisionObject(tile);
-      if (!collisionObject) {
+      if (!collisionObject && !fallbackToTileBounds) {
         return;
       }
 
-      const bounds = this.getTileCollisionBounds(layer, tile, collisionObject);
+      const bounds = collisionObject
+        ? this.getTileCollisionBounds(layer, tile, collisionObject)
+        : this.getTileBounds(layer, tile);
 
       const hitbox = this.add.zone(
         bounds.x + bounds.width / 2,
@@ -261,6 +247,20 @@ export class Game extends Phaser.Scene {
       y: origin.y + top + halfHeight,
       width: right - left,
       height: bottom - top,
+    };
+  }
+
+  private getTileBounds(
+    layer: Phaser.Tilemaps.TilemapLayer,
+    tile: Phaser.Tilemaps.Tile,
+  ) {
+    const origin = layer.tileToWorldXY(tile.x, tile.y);
+
+    return {
+      x: origin.x,
+      y: origin.y,
+      width: tile.baseWidth,
+      height: tile.baseHeight,
     };
   }
 

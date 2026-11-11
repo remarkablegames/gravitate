@@ -3,6 +3,7 @@ export const TILESET_NAME = 'tileset';
 export const TILEMAP_LAYER = {
   BACKGROUND: 'Background',
   GROUND: 'Ground',
+  PLATFORMS: 'Platforms',
   SPIKES: 'Spikes',
   FOREGROUND: 'Foreground',
   OBJECTS: 'Objects',
