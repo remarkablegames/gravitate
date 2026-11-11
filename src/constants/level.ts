@@ -1,11 +1,5 @@
-import { MUSIC, type MusicKey } from './key';
-
-export interface Level {
-  level: number;
-  tilemap: string;
-  music: MusicKey;
-  helpText: string;
-}
+import type { Level } from '../types';
+import { MUSIC } from './key';
 
 /**
  * Legend:

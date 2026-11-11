@@ -13,8 +13,6 @@ export const MUSIC = {
   ALIENS: 'ALIENS',
 } as const;
 
-export type MusicKey = (typeof MUSIC)[keyof typeof MUSIC];
-
 export const DATA = {
   MUSIC: 'MUSIC',
 } as const;

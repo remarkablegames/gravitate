@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 
-import { DIRECTION, type Direction, KEY } from '../constants';
+import { DIRECTION, KEY } from '../constants';
+import type { Direction } from '../types';
 
 const DIRECTION_ANGLE: Record<Direction, number> = {
   up: 0,

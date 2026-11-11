@@ -4,24 +4,16 @@ import { render, useRef } from 'phaser-jsx';
 import { HelpText } from '../components';
 import {
   DIRECTION,
-  type Direction,
   KEY,
-  type Level,
   LEVELS,
   TILEMAP_LAYER,
   TILEMAP_OBJECT,
   TILESET_NAME,
 } from '../constants';
 import { Arrow, Exit, Player } from '../sprites';
+import type { Direction, Level, TileCollisionObject } from '../types';
 
 const GRAVITY_UPDATE_COOLDOWN_MS = 300;
-
-interface TileCollisionObject {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
 
 export class Game extends Phaser.Scene {
   private groundLayer!: Phaser.Tilemaps.TilemapLayer;

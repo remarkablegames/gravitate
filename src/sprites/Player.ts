@@ -1,11 +1,12 @@
 import Phaser from 'phaser';
 
-import { DIRECTION, type Direction, KEY } from '../constants';
+import { DIRECTION, KEY } from '../constants';
+import type { Direction } from '../types';
 
 const ANIMATION = {
   IDLE: 'IDLE',
   RUN: 'RUN',
-};
+} as const;
 
 type Cursors = Record<
   'w' | 'a' | 's' | 'd' | 'up' | 'left' | 'down' | 'right',

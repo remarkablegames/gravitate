@@ -1,15 +1,18 @@
 import Phaser from 'phaser';
 
 import { KEY } from '../constants';
-import { MUSIC, type MusicKey } from '../constants/key';
+import type { MusicKey } from '../types';
 
 const MUSIC_VOLUME = 0.8;
 const MUSIC_FADE_DURATION_MS = 1000;
 
 const MUSIC_FILES: Record<MusicKey, string[]> = {
-  [MUSIC.STARWAY]: ['music/starway.ogg', 'music/starway.mp3'],
-  [MUSIC.TO_THE_SPACE]: ['music/to_the_space.ogg', 'music/to_the_space.mp3'],
-  [MUSIC.ALIENS]: ['music/aliens.ogg', 'music/aliens.mp3'],
+  [KEY.MUSIC.STARWAY]: ['music/starway.ogg', 'music/starway.mp3'],
+  [KEY.MUSIC.TO_THE_SPACE]: [
+    'music/to_the_space.ogg',
+    'music/to_the_space.mp3',
+  ],
+  [KEY.MUSIC.ALIENS]: ['music/aliens.ogg', 'music/aliens.mp3'],
 };
 
 /**
