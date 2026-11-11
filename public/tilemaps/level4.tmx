@@ -213,7 +213,7 @@
 </data>
  </layer>
  <objectgroup id="3" name="Objects">
-  <object id="1" name="Spawn" x="64" y="128">
+  <object id="1" name="Spawn" x="64" y="136">
    <point/>
   </object>
   <object id="3" name="Up" type="Arrow" x="96" y="104" rotation="180">
