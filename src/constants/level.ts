@@ -66,7 +66,7 @@ export const LEVELS: Level[] = [
   {
     level: 1,
     tilemap: 'level1',
-    helpText: 'Use arrow to shift gravity',
+    helpText: 'Touch arrow to shift gravity',
     music: MUSIC.TO_THE_SPACE,
   },
 
@@ -108,7 +108,7 @@ export const LEVELS: Level[] = [
   {
     level: 3,
     tilemap: 'level3',
-    helpText: 'Watch out for spikes',
+    helpText: 'Be careful of spikes',
     music: MUSIC.TO_THE_SPACE,
   },
 
@@ -129,7 +129,7 @@ export const LEVELS: Level[] = [
   {
     level: 4,
     tilemap: 'level4',
-    helpText: 'Jump on it!',
+    helpText: 'Jump on it',
     music: MUSIC.TO_THE_SPACE,
   },
 
