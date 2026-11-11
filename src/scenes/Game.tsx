@@ -14,7 +14,7 @@ import {
 } from '../constants';
 import { Arrow, Exit, Player } from '../sprites';
 
-const GRAVITY_UPDATE_COOLDOWN_MS = 500;
+const GRAVITY_UPDATE_COOLDOWN_MS = 300;
 
 interface TileCollisionObject {
   x: number;
