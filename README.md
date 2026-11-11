@@ -22,6 +22,7 @@ Or download for desktop:
 ## Credits
 
 - [Sci-fi Platformer - 16x16 Asset Pack](https://wrabitart.itch.io/sci-fi-platformer-asset-pack)
+- [Sci-Fi Game Music Pack](https://alkakrab.itch.io/free-sci-fi-game-music-pack)
 - [Pixelart Arrow Icons Pack](https://ibingames.itch.io/pixelart-arrow-icons-pack)
 - [Game Sounds](https://github.com/remarkablegames/game-sounds)
 
