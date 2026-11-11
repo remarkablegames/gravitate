@@ -93,7 +93,7 @@ export const LEVELS: Level[] = [
   {
     level: 2,
     tilemap: 'level2',
-    helpText: 'Break the chain',
+    helpText: 'Use your momentum',
     music: MUSIC.TO_THE_SPACE,
   },
 
