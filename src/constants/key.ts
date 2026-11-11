@@ -7,6 +7,14 @@ export const AUDIO = {
   WALK: 'WALK',
 } as const;
 
+export const MUSIC = {
+  STARWAY: 'STARWAY',
+  TO_THE_SPACE: 'TO_THE_SPACE',
+  ALIENS: 'ALIENS',
+} as const;
+
+export type MusicKey = (typeof MUSIC)[keyof typeof MUSIC];
+
 export const IMAGE = {
   TILES: 'TILES',
   ARROW: 'ARROW',

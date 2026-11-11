@@ -1,6 +1,9 @@
+import { MUSIC, type MusicKey } from './key';
+
 export interface Level {
   level: number;
   tilemap: string;
+  music: MusicKey;
   helpText: string;
 }
 
@@ -49,6 +52,7 @@ export const LEVELS: Level[] = [
     level: 0,
     tilemap: 'level0',
     helpText: 'WASD or arrow keys to move',
+    music: MUSIC.TO_THE_SPACE,
   },
 
   /* 1
@@ -69,6 +73,7 @@ export const LEVELS: Level[] = [
     level: 1,
     tilemap: 'level1',
     helpText: 'Use arrow to shift gravity',
+    music: MUSIC.TO_THE_SPACE,
   },
 
   /* 2
@@ -89,6 +94,7 @@ export const LEVELS: Level[] = [
     level: 2,
     tilemap: 'level2',
     helpText: 'Break the chain',
+    music: MUSIC.TO_THE_SPACE,
   },
 
   /* 3
@@ -109,6 +115,7 @@ export const LEVELS: Level[] = [
     level: 3,
     tilemap: 'level3',
     helpText: 'Watch out for spikes',
+    music: MUSIC.TO_THE_SPACE,
   },
 
   /* 4
@@ -129,6 +136,7 @@ export const LEVELS: Level[] = [
     level: 4,
     tilemap: 'level4',
     helpText: 'Jump on it!',
+    music: MUSIC.TO_THE_SPACE,
   },
 
   /* 5
@@ -149,6 +157,7 @@ export const LEVELS: Level[] = [
     level: 5,
     tilemap: 'level5',
     helpText: 'Circular loop',
+    music: MUSIC.STARWAY,
   },
 
   /* 6
@@ -169,5 +178,6 @@ export const LEVELS: Level[] = [
     level: 6,
     tilemap: 'level6',
     helpText: 'Think outside the box',
+    music: MUSIC.ALIENS,
   },
 ];
