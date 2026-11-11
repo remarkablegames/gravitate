@@ -30,7 +30,7 @@ export class Boot extends Scene {
     this.load.audio(KEY.AUDIO.WALK, ['sounds/walk.ogg', 'sounds/walk.mp3']);
 
     // Load initial level
-    const { tilemap } = LEVELS[this.level] || {};
+    const { tilemap } = LEVELS[this.level] ?? LEVELS[0];
     this.load.tilemapTiledJSON(tilemap, `tilemaps/${tilemap}.json`);
   }
 

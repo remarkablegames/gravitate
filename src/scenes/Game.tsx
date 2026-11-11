@@ -41,9 +41,11 @@ export class Game extends Phaser.Scene {
   }
 
   preload() {
-    // Prefetch next level's tilemap
-    const { tilemap } = LEVELS[this.level.level + 1] ?? {};
-    if (tilemap && !this.cache.tilemap.exists(tilemap)) {
+    // Make sure the current level is available. Boot loads the initial one, and
+    // later levels are usually prefetched while the previous level is playing,
+    // but a quick exit can shut the loader down before it finishes.
+    const { tilemap } = this.level;
+    if (!this.cache.tilemap.exists(tilemap)) {
       this.load.tilemapTiledJSON(tilemap, `tilemaps/${tilemap}.json`);
     }
   }
@@ -55,6 +57,9 @@ export class Game extends Phaser.Scene {
     this.gravityDirection = DIRECTION.DOWN;
 
     this.registry.set(KEY.DATA.MUSIC, this.level.music);
+
+    // Load the next level in the background while this one is being played
+    this.prefetchNextLevel();
 
     const map = this.make.tilemap({ key: this.level.tilemap });
     const tileset = map.addTilesetImage(TILESET_NAME, KEY.IMAGE.TILES)!;
@@ -149,6 +154,19 @@ export class Game extends Phaser.Scene {
       foregroundLayer,
       ...arrows,
     );
+  }
+
+  /**
+   * Start loading the next level's tilemap without blocking this scene.
+   */
+  private prefetchNextLevel() {
+    const { tilemap } = LEVELS[this.level.level + 1] ?? {};
+    if (!tilemap || this.cache.tilemap.exists(tilemap)) {
+      return;
+    }
+
+    this.load.tilemapTiledJSON(tilemap, `tilemaps/${tilemap}.json`);
+    this.load.start();
   }
 
   /**
