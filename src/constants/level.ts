@@ -114,6 +114,27 @@ export const LEVELS: Level[] = [
 
   /* 4
   +----------------+
+  |####........####|
+  |#→.............#|
+  |#..............#|
+  |#..............#|
+  |#......◎......←#|
+  |#......==......#|
+  |#..............#|
+  |#..............#|
+  |#..↑.........☺.#|
+  |######....######|
+  +----------------+
+  */
+  {
+    level: 4,
+    tilemap: 'level4',
+    helpText: 'Mind the gap',
+    music: MUSIC.TO_THE_SPACE,
+  },
+
+  /* 5
+  +----------------+
   |################|
   |#◎.............#|
   |#.............→#|
@@ -127,13 +148,13 @@ export const LEVELS: Level[] = [
   +----------------+
   */
   {
-    level: 4,
-    tilemap: 'level4',
+    level: 5,
+    tilemap: 'level5',
     helpText: 'Take a leap of faith',
     music: MUSIC.TO_THE_SPACE,
   },
 
-  /* 5
+  /* 6
   +----------------+
   |######....######|
   |#....#.........#|
@@ -148,13 +169,13 @@ export const LEVELS: Level[] = [
   +----------------+
   */
   {
-    level: 5,
-    tilemap: 'level5',
+    level: 6,
+    tilemap: 'level6',
     helpText: 'Pick the right path',
     music: MUSIC.TO_THE_SPACE,
   },
 
-  /* 6
+  /* 7
   +----------------+
   |################|
   |#..............#|
@@ -169,13 +190,13 @@ export const LEVELS: Level[] = [
   +----------------+
   */
   {
-    level: 6,
-    tilemap: 'level6',
+    level: 7,
+    tilemap: 'level7',
     helpText: 'Jump on it',
     music: MUSIC.TO_THE_SPACE,
   },
 
-  /* 7
+  /* 8
   +----------------+
   |################|
   |#............↓.#|
@@ -190,13 +211,13 @@ export const LEVELS: Level[] = [
   +----------------+
   */
   {
-    level: 7,
-    tilemap: 'level7',
+    level: 8,
+    tilemap: 'level8',
     helpText: 'Circular loop',
     music: MUSIC.STARWAY,
   },
 
-  /* 8
+  /* 9
   +----------------+
   |################|
   |#..............#|
@@ -211,8 +232,8 @@ export const LEVELS: Level[] = [
   +----------------+
   */
   {
-    level: 8,
-    tilemap: 'level8',
+    level: 9,
+    tilemap: 'level9',
     helpText: 'Time it right',
     music: MUSIC.ALIENS,
   },
