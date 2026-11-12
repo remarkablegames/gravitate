@@ -44,7 +44,7 @@ export const LEVELS: Level[] = [
   */
   {
     level: 0,
-    tilemap: 'level0',
+    tilemap: 'level00',
     helpText: 'WASD or arrow keys to move',
     music: MUSIC.TO_THE_SPACE,
   },
@@ -65,7 +65,7 @@ export const LEVELS: Level[] = [
   */
   {
     level: 1,
-    tilemap: 'level1',
+    tilemap: 'level01',
     helpText: 'Touch arrow to shift gravity',
     music: MUSIC.TO_THE_SPACE,
   },
@@ -86,7 +86,7 @@ export const LEVELS: Level[] = [
   */
   {
     level: 2,
-    tilemap: 'level2',
+    tilemap: 'level02',
     helpText: 'Use your momentum',
     music: MUSIC.TO_THE_SPACE,
   },
@@ -107,7 +107,7 @@ export const LEVELS: Level[] = [
   */
   {
     level: 3,
-    tilemap: 'level3',
+    tilemap: 'level03',
     helpText: 'Be careful of spikes',
     music: MUSIC.TO_THE_SPACE,
   },
@@ -128,7 +128,7 @@ export const LEVELS: Level[] = [
   */
   {
     level: 4,
-    tilemap: 'level4',
+    tilemap: 'level04',
     helpText: 'Mind the gap',
     music: MUSIC.TO_THE_SPACE,
   },
@@ -149,7 +149,7 @@ export const LEVELS: Level[] = [
   */
   {
     level: 5,
-    tilemap: 'level5',
+    tilemap: 'level05',
     helpText: 'Take a leap of faith',
     music: MUSIC.TO_THE_SPACE,
   },
@@ -170,7 +170,7 @@ export const LEVELS: Level[] = [
   */
   {
     level: 6,
-    tilemap: 'level6',
+    tilemap: 'level06',
     helpText: 'Pick the right path',
     music: MUSIC.TO_THE_SPACE,
   },
@@ -191,7 +191,7 @@ export const LEVELS: Level[] = [
   */
   {
     level: 7,
-    tilemap: 'level7',
+    tilemap: 'level07',
     helpText: 'Jump on it',
     music: MUSIC.TO_THE_SPACE,
   },
@@ -212,7 +212,7 @@ export const LEVELS: Level[] = [
   */
   {
     level: 8,
-    tilemap: 'level8',
+    tilemap: 'level08',
     helpText: 'Circular loop',
     music: MUSIC.STARWAY,
   },
@@ -233,7 +233,7 @@ export const LEVELS: Level[] = [
   */
   {
     level: 9,
-    tilemap: 'level9',
+    tilemap: 'level09',
     helpText: 'Time it right',
     music: MUSIC.ALIENS,
   },
