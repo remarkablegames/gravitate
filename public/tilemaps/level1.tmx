@@ -230,10 +230,10 @@
   <object id="1" name="Spawn" x="48" y="136">
    <point/>
   </object>
-  <object id="3" name="Up" type="Arrow" x="208" y="136">
+  <object id="3" name="Up" type="Arrow" x="208" y="136" rotation="-180">
    <point/>
   </object>
-  <object id="2" name="Exit" x="48" y="26">
+  <object id="2" name="Exit" x="48" y="26" rotation="-180">
    <point/>
   </object>
  </objectgroup>
