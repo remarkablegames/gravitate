@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.12.2" orientation="orthogonal" renderorder="right-down" width="16" height="10" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="16">
+ <editorsettings>
+  <export target="level11.json" format="json"/>
+ </editorsettings>
+ <tileset firstgid="1" name="tileset" tilewidth="16" tileheight="16" tilecount="180" columns="18">
+  <image source="tileset.png" width="288" height="160"/>
+  <tile id="15">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="8" y="12" width="8" height="4"/>
+   </objectgroup>
+  </tile>
+  <tile id="16">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="12" width="8" height="4"/>
+   </objectgroup>
+  </tile>
+  <tile id="32">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="6" width="16" height="10"/>
+   </objectgroup>
+  </tile>
+  <tile id="33">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="2" y="0" width="14" height="16"/>
+   </objectgroup>
+  </tile>
+  <tile id="34">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="0" width="13" height="16"/>
+   </objectgroup>
+  </tile>
+  <tile id="66">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="8" width="16" height="8"/>
+   </objectgroup>
+  </tile>
+  <tile id="67">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="10" width="16" height="6"/>
+   </objectgroup>
+  </tile>
+  <tile id="68">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="10" width="16" height="6"/>
+   </objectgroup>
+  </tile>
+  <tile id="69">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="8" width="16" height="8"/>
+   </objectgroup>
+  </tile>
+  <tile id="70">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="10" width="16" height="6"/>
+   </objectgroup>
+  </tile>
+  <tile id="71">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="10" width="16" height="6"/>
+   </objectgroup>
+  </tile>
+  <tile id="75">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="5" y="5" width="11" height="11"/>
+   </objectgroup>
+  </tile>
+  <tile id="76">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="5" width="16" height="6"/>
+   </objectgroup>
+  </tile>
+  <tile id="77">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="5" width="11" height="11"/>
+   </objectgroup>
+  </tile>
+  <tile id="93">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="5" y="0" width="6" height="16"/>
+   </objectgroup>
+  </tile>
+  <tile id="95">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="5" y="0" width="6" height="16"/>
+   </objectgroup>
+  </tile>
+  <tile id="102">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="2" y="0" width="13" height="4"/>
+   </objectgroup>
+  </tile>
+  <tile id="111">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="5" y="0" width="11" height="11"/>
+   </objectgroup>
+  </tile>
+  <tile id="112">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="5" width="16" height="6"/>
+   </objectgroup>
+  </tile>
+  <tile id="113">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="0" width="11" height="11"/>
+   </objectgroup>
+  </tile>
+  <tile id="126">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="0" width="16" height="13"/>
+   </objectgroup>
+  </tile>
+  <tile id="127">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="0" width="16" height="13"/>
+   </objectgroup>
+  </tile>
+  <tile id="128">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="0" width="10" height="11"/>
+   </objectgroup>
+  </tile>
+  <tile id="129">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="6" y="0" width="10" height="11"/>
+   </objectgroup>
+  </tile>
+  <tile id="130">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="0" width="16" height="13"/>
+   </objectgroup>
+  </tile>
+  <tile id="131">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="0" width="16" height="13"/>
+   </objectgroup>
+  </tile>
+  <tile id="138">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="2" y="12" width="13" height="4"/>
+   </objectgroup>
+  </tile>
+  <tile id="162">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="0" width="16" height="10"/>
+   </objectgroup>
+  </tile>
+  <tile id="163">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="0" width="16" height="10"/>
+   </objectgroup>
+  </tile>
+  <tile id="164">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="0" width="16" height="10"/>
+   </objectgroup>
+  </tile>
+ </tileset>
+ <layer id="1" name="Background" width="16" height="10">
+  <data encoding="csv">
+73,74,74,74,74,74,74,74,74,74,74,74,2147483722,74,2147483722,2147483721,
+91,92,92,92,92,92,92,92,92,92,92,92,2147483740,92,2147483740,2147483739,
+91,92,92,92,92,92,92,92,92,92,92,92,92,2147483740,92,2147483739,
+91,92,92,92,92,92,92,92,92,92,92,92,92,92,92,2147483739,
+91,92,92,92,92,92,92,92,92,92,92,92,92,92,92,2147483739,
+91,92,92,92,92,92,92,92,92,92,92,92,92,92,92,2147483739,
+91,92,92,92,92,92,92,92,92,92,92,92,92,92,92,2147483739,
+91,1073741916,1073741916,92,92,92,92,92,92,92,92,92,92,3221225564,1073741916,2147483739,
+1073741915,92,92,92,92,92,92,92,92,92,92,92,2147483740,92,2147483740,3221225563,
+1073741897,1073741898,1073741898,1073741898,1073741898,1073741898,1073741898,1073741898,1073741898,1073741898,1073741898,1073741898,3221225546,1073741898,3221225546,3221225545
+</data>
+ </layer>
+ <layer id="2" name="Ground" width="16" height="10">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="6" name="Platforms" width="16" height="10">
+  <data encoding="csv">
+0,0,1610612901,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,1610612899,0,0,1073741987,1073741989,0,0,0,0,0,0,0,1610612901,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,1610612899,0,
+0,0,0,0,0,0,0,0,0,163,165,0,0,0,0,0,
+2684354723,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+2684354725,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,163,164,165,0,0,0,0,1610612901,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,1610612899,0,
+0,163,164,165,0,0,0,0,0,0,163,165,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="5" name="Spikes" width="16" height="10">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="4" name="Foreground" width="16" height="10">
+  <data encoding="csv">
+2684354609,2684354591,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+2684354610,2684354592,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup id="3" name="Objects">
+  <object id="1" name="Spawn" x="136" y="88">
+   <point/>
+  </object>
+  <object id="3" name="Up" type="Arrow" x="96" y="88" rotation="-180">
+   <point/>
+  </object>
+  <object id="2" name="Exit" x="22" y="16" rotation="-90">
+   <point/>
+  </object>
+  <object id="4" name="Down" type="Arrow" x="176" y="88">
+   <point/>
+  </object>
+  <object id="5" name="Left" type="Arrow" x="88" y="40" rotation="90">
+   <point/>
+  </object>
+  <object id="6" name="Down" type="Arrow" x="36" y="40">
+   <point/>
+  </object>
+  <object id="7" name="Right" type="Arrow" x="176" y="120" rotation="-90">
+   <point/>
+  </object>
+  <object id="8" name="Up" type="Arrow" x="56" y="120" rotation="-180">
+   <point/>
+  </object>
+  <object id="9" name="Right" type="Arrow" x="32" y="120" rotation="-90">
+   <point/>
+  </object>
+  <object id="10" name="Up" type="Arrow" x="216" y="120" rotation="-180">
+   <point/>
+  </object>
+  <object id="11" name="Left" type="Arrow" x="216" y="26" rotation="90">
+   <point/>
+  </object>
+  <object id="12" name="Right" type="Arrow" x="24" y="88" rotation="-90">
+   <point/>
+  </object>
+  <object id="13" name="Up" type="Arrow" x="12" y="56" rotation="180">
+   <point/>
+  </object>
+  <object id="14" name="Left" type="Arrow" x="184" y="52" rotation="90">
+   <point/>
+  </object>
+  <object id="15" name="Down" type="Arrow" x="104" y="40">
+   <point/>
+  </object>
+ </objectgroup>
+</map>
