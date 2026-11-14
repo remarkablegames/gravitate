@@ -24,14 +24,13 @@ export class Game extends Phaser.Scene {
   private spikeHitboxes!: Phaser.Physics.Arcade.StaticGroup;
   private player!: Player;
   private tileDebugGraphics!: Phaser.GameObjects.Graphics;
+  private uiCamera?: Phaser.Cameras.Scene2D.Camera;
 
   private gravity = 500;
   private gravityDirection: Direction = DIRECTION.DOWN;
   private isPlayerDead = false;
   private lastGravityUpdate = 0;
-  private lastTapTime = 0;
-  private lastTapX = 0;
-  private lastTapY = 0;
+  private lastTap = { time: 0, x: 0, y: 0 };
 
   private level!: Level;
   private isExiting = false;
@@ -153,14 +152,7 @@ export class Game extends Phaser.Scene {
 
     this.fitCameraToMap(map);
 
-    this.renderHelpText(
-      backgroundLayer,
-      this.groundLayer,
-      this.platformsLayer,
-      this.spikesLayer,
-      foregroundLayer,
-      ...arrows,
-    );
+    this.renderHelpText(backgroundLayer, foregroundLayer, ...arrows);
   }
 
   /**
@@ -400,25 +392,25 @@ export class Game extends Phaser.Scene {
     const { x: worldX, y: worldY } = worldPoint;
 
     const isDoubleTap =
-      now - this.lastTapTime < DOUBLE_TAP_THRESHOLD_MS &&
+      now - this.lastTap.time < DOUBLE_TAP_THRESHOLD_MS &&
       Phaser.Math.Distance.Between(
         worldX,
         worldY,
-        this.lastTapX,
-        this.lastTapY,
+        this.lastTap.x,
+        this.lastTap.y,
       ) < 20;
 
     if (isDoubleTap) {
-      this.lastTapTime = 0;
+      this.lastTap.time = 0;
       this.player.jump();
       return;
     }
 
-    new Marker(this, worldX, worldY);
+    this.uiCamera?.ignore(new Marker(this, worldX, worldY));
     this.player.setWalkTarget(worldX, worldY);
-    this.lastTapTime = now;
-    this.lastTapX = worldX;
-    this.lastTapY = worldY;
+    this.lastTap.time = now;
+    this.lastTap.x = worldX;
+    this.lastTap.y = worldY;
   };
 
   private renderHelpText(...ignoreList: Phaser.GameObjects.GameObject[]) {
@@ -431,19 +423,25 @@ export class Game extends Phaser.Scene {
     }
 
     // Keep help text at a fixed screen size regardless of camera zoom
-    const uiCamera = this.cameras.add(
-      0,
-      0,
-      this.scale.width,
-      this.scale.height,
-    );
+    this.uiCamera = this.cameras.add(0, 0, this.scale.width, this.scale.height);
+
+    // Ignore from cameras to prevent double rendering
     this.cameras.main.ignore(helpText);
-    uiCamera.ignore(ignoreList.concat(this.player));
+    this.uiCamera.ignore(
+      ignoreList.concat(
+        this.player,
+        this.groundLayer,
+        this.platformsLayer,
+        this.spikesLayer,
+      ),
+    );
 
     // Don't draw a second copy of every body since physics debug graphic is a world-space object
     if (this.physics.world.drawDebug) {
-      uiCamera.ignore(this.physics.world.debugGraphic);
-      uiCamera.ignore(this.tileDebugGraphics);
+      this.uiCamera.ignore([
+        this.physics.world.debugGraphic,
+        this.tileDebugGraphics,
+      ]);
     }
   }
 
