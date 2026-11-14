@@ -255,7 +255,7 @@ export const LEVELS: Level[] = [
   {
     level: 10,
     tilemap: 'level10',
-    helpText: 'Walled off',
+    helpText: 'Split in two',
     music: MUSIC.ALIENS,
   },
 
@@ -283,6 +283,27 @@ export const LEVELS: Level[] = [
   /* 12
   +----------------+
   |################|
+  |#↑.......▲#..→▲#|
+  |#....#...▲#◎..▲#|
+  |#...▲#...←#==.▲#|
+  |#...▲#....#▲..▲#|
+  |#...▲#▲...#▲.==#|
+  |#...▲#▲...#▲..↓#|
+  |#....#▲...#==..#|
+  |#☺..→#...→...▲.#|
+  |################|
+  +----------------+
+  */
+  {
+    level: 12,
+    tilemap: 'level12',
+    helpText: 'Scale the walls',
+    music: MUSIC.ALIENS,
+  },
+
+  /* 13
+  +----------------+
+  |################|
   |#.↓.............|
   |#.............↑.|
   |#.==..#....←####|
@@ -295,13 +316,13 @@ export const LEVELS: Level[] = [
   +----------------+
   */
   {
-    level: 12,
-    tilemap: 'level12',
+    level: 13,
+    tilemap: 'level13',
     helpText: 'Don’t look down',
     music: MUSIC.ALIENS,
   },
 
-  /* 13
+  /* 14
   +----------------+
   |..#.............|
   |.◎#..==......←#.|
@@ -316,30 +337,9 @@ export const LEVELS: Level[] = [
   +----------------+
   */
   {
-    level: 13,
-    tilemap: 'level13',
-    helpText: 'Follow the arrows',
-    music: MUSIC.ALIENS,
-  },
-
-  /* 14
-  +----------------+
-  |################|
-  |#↑.......▲#..→▲#|
-  |#....#...▲#◎..▲#|
-  |#...▲#...←#==.▲#|
-  |#...▲#....#▲..▲#|
-  |#...▲#▲...#▲.==#|
-  |#...▲#▲...#▲..↓#|
-  |#....#▲...#==..#|
-  |#☺..→#...→...▲.#|
-  |################|
-  +----------------+
-  */
-  {
     level: 14,
     tilemap: 'level14',
-    helpText: 'Scale the walls',
+    helpText: 'Ride the arrows',
     music: MUSIC.ALIENS,
   },
 ];
