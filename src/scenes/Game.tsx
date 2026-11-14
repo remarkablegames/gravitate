@@ -14,6 +14,10 @@ import { Arrow, Exit, Player } from '../sprites';
 import type { Direction, Level, TileCollisionObject } from '../types';
 
 const GRAVITY_UPDATE_COOLDOWN_MS = 300;
+const DOUBLE_TAP_THRESHOLD_MS = 300;
+const MARKER_RADIUS = 5;
+const MARKER_COLOR = 0xffffff;
+const MARKER_FADE_MS = 600;
 
 export class Game extends Phaser.Scene {
   private groundLayer!: Phaser.Tilemaps.TilemapLayer;
@@ -28,6 +32,9 @@ export class Game extends Phaser.Scene {
   private gravityDirection: Direction = DIRECTION.DOWN;
   private isPlayerDead = false;
   private lastGravityUpdate = 0;
+  private lastTapTime = 0;
+  private lastTapX = 0;
+  private lastTapY = 0;
 
   private level!: Level;
   private isExiting = false;
@@ -143,6 +150,9 @@ export class Game extends Phaser.Scene {
 
     // Change gravity direction when player touches arrow
     this.physics.world.addOverlap(arrows, this.player, this.handleArrow);
+
+    // Pointer (touch/mouse) input: tap to walk, double-tap to jump
+    this.input.on('pointerdown', this.handlePointerDown);
 
     this.fitCameraToMap(map);
 
@@ -382,6 +392,51 @@ export class Game extends Phaser.Scene {
       this.scene.restart();
     });
   };
+
+  private handlePointerDown = (pointer: Phaser.Input.Pointer) => {
+    if (this.isPlayerDead || this.isExiting) {
+      return;
+    }
+
+    const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+    const { now } = this.time;
+    const { x: worldX, y: worldY } = worldPoint;
+
+    const isDoubleTap =
+      now - this.lastTapTime < DOUBLE_TAP_THRESHOLD_MS &&
+      Phaser.Math.Distance.Between(
+        worldX,
+        worldY,
+        this.lastTapX,
+        this.lastTapY,
+      ) < 20;
+
+    if (isDoubleTap) {
+      this.lastTapTime = 0;
+      this.player.jump();
+      return;
+    }
+
+    this.createMarker(worldX, worldY);
+    this.player.setWalkTarget(worldX, worldY);
+    this.lastTapTime = now;
+    this.lastTapX = worldX;
+    this.lastTapY = worldY;
+  };
+
+  private createMarker(x: number, y: number) {
+    const marker = this.add
+      .circle(x, y, MARKER_RADIUS, MARKER_COLOR)
+      .setDepth(100);
+    this.tweens.add({
+      targets: marker,
+      alpha: 0,
+      duration: MARKER_FADE_MS,
+      onComplete: () => {
+        marker.destroy();
+      },
+    });
+  }
 
   private renderHelpText(...ignoreList: Phaser.GameObjects.GameObject[]) {
     const helpTextRef = useRef<Phaser.GameObjects.Text>();

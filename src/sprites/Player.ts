@@ -15,6 +15,7 @@ type Cursors = Record<
 
 const PLAYER_VELOCITY = 250;
 const LAND_MIN_AIRBORNE_MS = 150;
+const WALK_THRESHOLD_PX = 4;
 const WALK_SOUND_VOLUME = 0.3;
 
 /**
@@ -45,6 +46,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private wasOnGround = true;
   private airborneSince = 0;
   gravityDirection: Direction = DIRECTION.DOWN;
+  private walkTarget: { x: number; y: number } | null = null;
 
   constructor(
     scene: Phaser.Scene,
@@ -68,13 +70,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private enablePhysics() {
     this.scene.physics.world.enable(this);
     this.scene.add.existing(this);
-
     this.setGravityDirection(this.gravityDirection);
   }
 
   /**
    * Rotate/flip the sprite and resize the collision box so the player stands
-   * on the surface the gravity is pulling them towards.
+   * on the surface the gravity is pulling them towards
    */
   setGravityDirection(direction: Direction) {
     this.gravityDirection = direction;
@@ -87,7 +88,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.setFlipY(direction === DIRECTION.UP);
 
     // Drag and max velocity apply to the walking axis, so swap them when the
-    // walking axis is vertical.
+    // walking axis is vertical
     this.setDrag(isSideways ? 0 : 500, isSideways ? 500 : 0);
     this.setMaxVelocity(isSideways ? 200 : 150, isSideways ? 150 : 200);
     this.setAcceleration(0);
@@ -97,6 +98,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.body.setOffset(offsetX, offsetY);
   }
 
+  setWalkTarget(x: number, y: number) {
+    this.walkTarget = { x, y };
+  }
+
+  clearWalkTarget() {
+    this.walkTarget = null;
+  }
+
   private createCursorKeys() {
     return this.scene.input.keyboard!.addKeys(
       'w,a,s,d,up,left,down,right',
@@ -104,7 +113,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Create the animations we need from the player spritesheet.
+   * Create the animations we need from the player spritesheet
    */
   private createAnimations() {
     const anims = this.scene.anims;
@@ -139,14 +148,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const isOnGround = this.isOnGround();
     const acceleration = isOnGround ? 300 : 100;
 
-    if (isOnGround && this.isJumpPressed()) {
+    if (this.isJumpPressed()) {
       this.jump();
     }
 
     const isSideways =
       this.gravityDirection === DIRECTION.LEFT ||
       this.gravityDirection === DIRECTION.RIGHT;
-    const walkDirection = this.getWalkDirection();
+    const walkDirection = this.walkTarget
+      ? this.getWalkDirectionToTarget()
+      : this.getWalkDirection();
 
     // Walk along the axis perpendicular to gravity
     if (isSideways) {
@@ -155,15 +166,44 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.setAccelerationX(walkDirection * acceleration);
     }
 
+    // Clear the walk target once the player reaches it on the walking axis
+    if (this.walkTarget) {
+      const reached = isSideways
+        ? Math.abs(this.y - this.walkTarget.y) <= WALK_THRESHOLD_PX
+        : Math.abs(this.x - this.walkTarget.x) <= WALK_THRESHOLD_PX;
+      if (reached) {
+        this.clearWalkTarget();
+      }
+    }
+
     // Face the direction of travel along the player's local horizontal axis,
-    // including when the player is rotated against a wall.
+    // including when the player is rotated against a wall
     const left = this.cursors.left.isDown || this.cursors.a.isDown;
     const right = this.cursors.right.isDown || this.cursors.d.isDown;
 
-    if (left) {
-      this.setFlipX(true);
-    } else if (right) {
-      this.setFlipX(false);
+    if (
+      this.gravityDirection === DIRECTION.DOWN ||
+      this.gravityDirection === DIRECTION.UP
+    ) {
+      let travelDirection: number;
+      if (this.walkTarget) {
+        travelDirection =
+          this.walkTarget.x > this.x ? 1 : this.walkTarget.x < this.x ? -1 : 0;
+      } else {
+        travelDirection = right ? 1 : left ? -1 : 0;
+      }
+
+      if (travelDirection === 1) {
+        this.setFlipX(false);
+      } else if (travelDirection === -1) {
+        this.setFlipX(true);
+      }
+    } else {
+      if (left) {
+        this.setFlipX(true);
+      } else if (right) {
+        this.setFlipX(false);
+      }
     }
 
     // Update the animation/texture based on the state of the player
@@ -179,7 +219,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       }
 
       // Only play a landing sound after a real fall, not when gravity shifts
-      // and the player is grounded again a frame later.
+      // and the player is grounded again a frame later
       if (
         !this.wasOnGround &&
         this.scene.time.now - this.airborneSince > LAND_MIN_AIRBORNE_MS
@@ -211,8 +251,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const left = this.cursors.left.isDown || this.cursors.a.isDown;
     const right = this.cursors.right.isDown || this.cursors.d.isDown;
 
-    // Left/right move the player along their local horizontal axis. When
-    // gravity pulls right, the player is rotated so their right is world up.
+    // Left/right move the player along their local horizontal axis
+    // When gravity pulls right, the player is rotated so their right is world up
     switch (this.gravityDirection) {
       case DIRECTION.RIGHT:
         return Number(left) - Number(right);
@@ -220,6 +260,27 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       case DIRECTION.UP:
       case DIRECTION.LEFT:
         return Number(right) - Number(left);
+    }
+  }
+
+  private getWalkDirectionToTarget() {
+    if (!this.walkTarget) {
+      return 0;
+    }
+
+    switch (this.gravityDirection) {
+      case DIRECTION.RIGHT:
+        return (
+          Number(this.walkTarget.y > this.y) -
+          Number(this.walkTarget.y < this.y)
+        );
+      case DIRECTION.DOWN:
+      case DIRECTION.UP:
+      case DIRECTION.LEFT:
+        return (
+          Number(this.walkTarget.x > this.x) -
+          Number(this.walkTarget.x < this.x)
+        );
     }
   }
 
@@ -236,7 +297,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  private jump() {
+  jump() {
+    if (!this.isOnGround()) {
+      return;
+    }
+
     this.scene.sound.play(KEY.AUDIO.JUMP, { volume: 0.8 });
 
     switch (this.gravityDirection) {
