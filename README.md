@@ -21,7 +21,7 @@ Or download for desktop:
 
 ## How to Play
 
-- WASD or arrow keys to move/jump (keyboard required)
+- WASD or arrow keys to move/jump (or tap and double-tap on touchscreen)
 - Touch a green arrow to shift gravity to its direction
 - Reach the blue portal to advance to the next level
 - Spikes or falling out of bounds restart the current level

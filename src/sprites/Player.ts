@@ -287,6 +287,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     switch (this.gravityDirection) {
+      case DIRECTION.LEFT:
       case DIRECTION.RIGHT:
         return (
           Number(this.walkTarget.y > this.y) -
@@ -294,7 +295,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         );
       case DIRECTION.DOWN:
       case DIRECTION.UP:
-      case DIRECTION.LEFT:
         return (
           Number(this.walkTarget.x > this.x) -
           Number(this.walkTarget.x < this.x)
