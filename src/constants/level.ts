@@ -151,7 +151,7 @@ export const LEVELS: Level[] = [
     level: 5,
     tilemap: 'level05',
     helpText: 'Take a leap of faith',
-    music: MUSIC.TO_THE_SPACE,
+    music: MUSIC.STARWAY,
   },
 
   /* 6
@@ -172,7 +172,7 @@ export const LEVELS: Level[] = [
     level: 6,
     tilemap: 'level06',
     helpText: 'Pick the right path',
-    music: MUSIC.TO_THE_SPACE,
+    music: MUSIC.STARWAY,
   },
 
   /* 7
@@ -193,7 +193,7 @@ export const LEVELS: Level[] = [
     level: 7,
     tilemap: 'level07',
     helpText: 'Jump on it',
-    music: MUSIC.TO_THE_SPACE,
+    music: MUSIC.STARWAY,
   },
 
   /* 8
@@ -235,7 +235,7 @@ export const LEVELS: Level[] = [
     level: 9,
     tilemap: 'level09',
     helpText: 'Time it right',
-    music: MUSIC.ALIENS,
+    music: MUSIC.STARWAY,
   },
 
   /* 10
@@ -262,6 +262,27 @@ export const LEVELS: Level[] = [
   /* 11
   +----------------+
   |################|
+  |#.→.▲▲▲▲▲▲▲▲..◎#|
+  |#.→.▲▲▲▲▲▲▲▲...#|
+  |#.##############|
+  |#.↑.▲▲▲▲▲▲▲▲.↓.#|
+  |#←.............#|
+  |##############.#|
+  |#..............#|
+  |#☺.▲..▲..▲..▲↑.#|
+  |################|
+  +----------------+
+  */
+  {
+    level: 11,
+    tilemap: 'level11',
+    helpText: 'Climb the ladder',
+    music: MUSIC.ALIENS,
+  },
+
+  /* 12
+  +----------------+
+  |################|
   |#.↓.............|
   |#.............↑.|
   |#.==..#....←####|
@@ -274,13 +295,13 @@ export const LEVELS: Level[] = [
   +----------------+
   */
   {
-    level: 11,
-    tilemap: 'level11',
+    level: 12,
+    tilemap: 'level12',
     helpText: 'Don’t look down',
     music: MUSIC.ALIENS,
   },
 
-  /* 12
+  /* 13
   +----------------+
   |..#.............|
   |.◎#..==......←#.|
@@ -295,30 +316,9 @@ export const LEVELS: Level[] = [
   +----------------+
   */
   {
-    level: 12,
-    tilemap: 'level12',
-    helpText: 'No safety',
-    music: MUSIC.ALIENS,
-  },
-
-  /* 13
-  +----------------+
-  |################|
-  |#.→.▲▲▲▲▲▲▲▲..◎#|
-  |#.→.▲▲▲▲▲▲▲▲...#|
-  |#.##############|
-  |#.↑.▲▲▲▲▲▲▲▲.↓.#|
-  |#←.............#|
-  |##############.#|
-  |#..............#|
-  |#☺.▲..▲..▲..▲↑.#|
-  |################|
-  +----------------+
-  */
-  {
     level: 13,
     tilemap: 'level13',
-    helpText: 'Climb the ladder',
+    helpText: 'Follow the arrows',
     music: MUSIC.ALIENS,
   },
 ];
