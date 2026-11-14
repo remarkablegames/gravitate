@@ -276,7 +276,7 @@ export const LEVELS: Level[] = [
   {
     level: 11,
     tilemap: 'level11',
-    helpText: 'Climb the ladder',
+    helpText: 'Move up the ladder',
     music: MUSIC.ALIENS,
   },
 
@@ -319,6 +319,27 @@ export const LEVELS: Level[] = [
     level: 13,
     tilemap: 'level13',
     helpText: 'Follow the arrows',
+    music: MUSIC.ALIENS,
+  },
+
+  /* 14
+  +----------------+
+  |################|
+  |#↑.......▲#..→▲#|
+  |#....#...▲#◎..▲#|
+  |#...▲#...←#==.▲#|
+  |#...▲#....#▲..▲#|
+  |#...▲#▲...#▲.==#|
+  |#...▲#▲...#▲..↓#|
+  |#....#▲...#==..#|
+  |#☺..→#...→...▲.#|
+  |################|
+  +----------------+
+  */
+  {
+    level: 14,
+    tilemap: 'level14',
+    helpText: 'Scale the walls',
     music: MUSIC.ALIENS,
   },
 ];
