@@ -16,6 +16,7 @@ type Cursors = Record<
 const PLAYER_VELOCITY = 250;
 const LAND_MIN_AIRBORNE_MS = 150;
 const WALK_THRESHOLD_PX = 4;
+const DECELERATION_DISTANCE_PX = 40;
 const WALK_SOUND_VOLUME = 0.3;
 
 /**
@@ -159,19 +160,36 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       ? this.getWalkDirectionToTarget()
       : this.getWalkDirection();
 
-    // Walk along the axis perpendicular to gravity
-    if (isSideways) {
-      this.setAccelerationY(walkDirection * acceleration);
-    } else {
-      this.setAccelerationX(walkDirection * acceleration);
+    // Ease into the target: scale down acceleration as the player approaches,
+    // so they settle on the marker instead of overshooting it due to momentum
+    let targetAcceleration = walkDirection * acceleration;
+    if (this.walkTarget) {
+      const distance = isSideways
+        ? Math.abs(this.y - this.walkTarget.y)
+        : Math.abs(this.x - this.walkTarget.x);
+      const ease = Phaser.Math.Clamp(distance / DECELERATION_DISTANCE_PX, 0, 1);
+      targetAcceleration *= ease;
     }
 
-    // Clear the walk target once the player reaches it on the walking axis
+    // Walk along the axis perpendicular to gravity
+    if (isSideways) {
+      this.setAccelerationY(targetAcceleration);
+    } else {
+      this.setAccelerationX(targetAcceleration);
+    }
+
+    // Clear the walk target once the player reaches it on the walking axis,
+    // zeroing walking-axis velocity so they stop on the marker
     if (this.walkTarget) {
       const reached = isSideways
         ? Math.abs(this.y - this.walkTarget.y) <= WALK_THRESHOLD_PX
         : Math.abs(this.x - this.walkTarget.x) <= WALK_THRESHOLD_PX;
       if (reached) {
+        if (isSideways) {
+          this.setVelocityY(0);
+        } else {
+          this.setVelocityX(0);
+        }
         this.clearWalkTarget();
       }
     }
