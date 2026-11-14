@@ -19,6 +19,22 @@ Or download for desktop:
 - [macOS](https://github.com/remarkablegames/gravitate/releases/latest/download/macos.zip)
 - [Linux](https://github.com/remarkablegames/gravitate/releases/latest/download/linux.zip)
 
+## How to Play
+
+- WASD or arrow keys to move/jump (keyboard required)
+- Touch a green arrow to shift gravity to its direction
+- Reach the blue portal to advance to the next level
+- Spikes or falling out of bounds restart the current level
+
+## Features
+
+- 15 handcrafted levels with a gradual difficulty curve
+- 4-direction gravity: floors, walls, and ceilings
+- Momentum-based jumps and mid-air gravity shifts
+- Spikes, gaps, and platforming hazards
+- 3 sci-fi music tracks and sound effects
+- Pixel-art visuals and responsive scaling
+
 ## Credits
 
 - [Sci-fi Platformer - 16x16 Asset Pack](https://wrabitart.itch.io/sci-fi-platformer-asset-pack)
