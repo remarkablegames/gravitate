@@ -1,4 +1,5 @@
 import type { Level } from '../types';
+import { hasTouch } from '../utils';
 import { MUSIC } from './key';
 
 /**
@@ -45,7 +46,9 @@ export const LEVELS: Level[] = [
   {
     level: 0,
     tilemap: 'level00',
-    helpText: 'WASD or arrow keys to move',
+    helpText: hasTouch()
+      ? 'Tap to walk, double-tap to jump'
+      : 'WASD or arrow keys to move',
     music: MUSIC.TO_THE_SPACE,
   },
 
