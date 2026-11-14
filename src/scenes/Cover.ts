@@ -11,6 +11,8 @@ const PLAYER_SCALE = 14;
 const PORTAL_SCALE = 8;
 const PORTAL_SIZE = TILE_SIZE * PORTAL_SCALE;
 const ARROW_SCALE = 0.9;
+const TITLE_PADDING = 72;
+const TITLE_JOIN_OFFSET = 80;
 
 /**
  * Tileset frame indices (Tiled gid - 1)
@@ -328,6 +330,7 @@ export class Cover extends Phaser.Scene {
       stroke: '#0b0f16',
       strokeThickness: 10,
       letterSpacing: 2,
+      padding: { x: TITLE_PADDING, y: TITLE_PADDING },
       shadow: {
         offsetX: 0,
         offsetY: 0,
@@ -339,14 +342,19 @@ export class Cover extends Phaser.Scene {
     } satisfies Phaser.Types.GameObjects.Text.TextStyle;
 
     const titleStart = this.add
-      .text(110, 210, 'GRAV', titleStyle)
+      .text(110 - TITLE_PADDING, 210 - TITLE_PADDING, 'GRAV', titleStyle)
       .setDepth(DEPTH.TEXT);
 
     this.add
-      .text(titleStart.x + titleStart.width, 210, 'ITATE', {
-        ...titleStyle,
-        color: COLOR.ACCENT_CSS,
-      })
+      .text(
+        titleStart.x + titleStart.width - TITLE_PADDING - TITLE_JOIN_OFFSET,
+        titleStart.y,
+        'ITATE',
+        {
+          ...titleStyle,
+          color: COLOR.ACCENT_CSS,
+        },
+      )
       .setDepth(DEPTH.TEXT);
 
     this.add
