@@ -65,16 +65,6 @@ Install the dependencies:
 npm install
 ```
 
-Update the files:
-
-- [ ] `README.md`
-- [ ] `index.html`
-- [ ] `package.json`
-- [ ] `public/*.png`
-- [ ] `public/favicon.svg`
-- [ ] `public/manifest.webmanifest`
-- [ ] `src/main.ts`
-
 ## Environment Variables
 
 Update the environment variables:
