@@ -24,6 +24,7 @@ export const IMAGE = {
 
 export const SCENE = {
   BOOT: 'BOOT',
+  COVER: 'COVER',
   GAME: 'GAME',
   MUSIC: 'MUSIC',
 } as const;

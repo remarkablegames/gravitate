@@ -122,3 +122,9 @@ Start a level by appending `?level=<number>` to the URL:
 ```
 http://localhost:5173/?level=0
 ```
+
+View cover image by appending `?cover` to the URL:
+
+```
+http://localhost:5173/?cover
+```

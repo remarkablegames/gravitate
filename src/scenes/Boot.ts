@@ -1,9 +1,12 @@
 import { Scene } from 'phaser';
 
-import { KEY, LEVELS } from '../constants';
+import { KEY, LEVELS, RESOLUTION } from '../constants';
 
 export class Boot extends Scene {
-  private level =
+  private readonly isCover = new URLSearchParams(window.location.search).has(
+    'cover',
+  );
+  private readonly level =
     Number(new URLSearchParams(window.location.search).get('level')) || 0;
 
   constructor() {
@@ -18,6 +21,11 @@ export class Boot extends Scene {
 
     this.load.image(KEY.IMAGE.ARROW, 'sprites/arrow.png');
     this.load.image(KEY.IMAGE.TILES, 'tilemaps/tileset.png');
+
+    // The cover only needs the shared sprites and tileset
+    if (this.isCover) {
+      return;
+    }
 
     this.load.audio(KEY.AUDIO.DEATH, ['sounds/death.ogg', 'sounds/death.mp3']);
     this.load.audio(KEY.AUDIO.JUMP, ['sounds/jump.ogg', 'sounds/jump.mp3']);
@@ -35,6 +43,13 @@ export class Boot extends Scene {
   }
 
   create() {
+    if (this.isCover) {
+      // Render the cover at a true 16:9 resolution without changing the game config
+      this.scale.setGameSize(RESOLUTION.COVER.WIDTH, RESOLUTION.COVER.HEIGHT);
+      this.scene.start(KEY.SCENE.COVER);
+      return;
+    }
+
     // Music loads in the background so it doesn't delay the game starting
     this.scene.launch(KEY.SCENE.MUSIC);
     this.scene.start(KEY.SCENE.GAME, { level: this.level });
