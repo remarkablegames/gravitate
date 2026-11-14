@@ -1,25 +1,25 @@
 import Phaser from 'phaser';
 
-const RADIUS = 5;
+const RADIUS = 6;
 const COLOR = 0xffffff;
-const DEPTH = 100;
-const FADE_DURATION_MS = 600;
+const DURATION_MS = 600;
 
 /**
  * A short-lived visual marker placed at a tap location
- * Fades out and destroys itself once the fade completes
+ * Renders as a ring that shrinks and fades out
  */
 export class Marker extends Phaser.GameObjects.Arc {
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, RADIUS, 0, 360, false, COLOR);
+    super(scene, x, y, RADIUS);
 
     scene.add.existing(this);
-    this.setDepth(DEPTH);
+    this.setStrokeStyle(1, COLOR);
 
     scene.tweens.add({
       targets: this,
+      radius: 0,
       alpha: 0,
-      duration: FADE_DURATION_MS,
+      duration: DURATION_MS,
       onComplete: () => {
         this.destroy();
       },
