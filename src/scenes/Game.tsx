@@ -10,14 +10,11 @@ import {
   TILEMAP_OBJECT,
   TILESET_NAME,
 } from '../constants';
-import { Arrow, Exit, Player } from '../sprites';
+import { Arrow, Exit, Marker, Player } from '../sprites';
 import type { Direction, Level, TileCollisionObject } from '../types';
 
 const GRAVITY_UPDATE_COOLDOWN_MS = 300;
 const DOUBLE_TAP_THRESHOLD_MS = 300;
-const MARKER_RADIUS = 5;
-const MARKER_COLOR = 0xffffff;
-const MARKER_FADE_MS = 600;
 
 export class Game extends Phaser.Scene {
   private groundLayer!: Phaser.Tilemaps.TilemapLayer;
@@ -417,26 +414,12 @@ export class Game extends Phaser.Scene {
       return;
     }
 
-    this.createMarker(worldX, worldY);
+    new Marker(this, worldX, worldY);
     this.player.setWalkTarget(worldX, worldY);
     this.lastTapTime = now;
     this.lastTapX = worldX;
     this.lastTapY = worldY;
   };
-
-  private createMarker(x: number, y: number) {
-    const marker = this.add
-      .circle(x, y, MARKER_RADIUS, MARKER_COLOR)
-      .setDepth(100);
-    this.tweens.add({
-      targets: marker,
-      alpha: 0,
-      duration: MARKER_FADE_MS,
-      onComplete: () => {
-        marker.destroy();
-      },
-    });
-  }
 
   private renderHelpText(...ignoreList: Phaser.GameObjects.GameObject[]) {
     const helpTextRef = useRef<Phaser.GameObjects.Text>();
