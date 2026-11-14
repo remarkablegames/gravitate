@@ -217,7 +217,24 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.setFlipX(true);
       }
     } else {
-      if (left) {
+      if (this.walkTarget) {
+        const travelDirection =
+          this.walkTarget.y > this.y ? 1 : this.walkTarget.y < this.y ? -1 : 0;
+
+        if (this.gravityDirection === DIRECTION.LEFT) {
+          if (travelDirection === -1) {
+            this.setFlipX(true);
+          } else if (travelDirection === 1) {
+            this.setFlipX(false);
+          }
+        } else {
+          if (travelDirection === 1) {
+            this.setFlipX(true);
+          } else if (travelDirection === -1) {
+            this.setFlipX(false);
+          }
+        }
+      } else if (left) {
         this.setFlipX(true);
       } else if (right) {
         this.setFlipX(false);
