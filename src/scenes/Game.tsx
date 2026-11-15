@@ -11,18 +11,12 @@ import {
   TILEMAP_OBJECT,
   TILESET_NAME,
 } from '../constants';
-import { Arrow, Exit, Marker, Particles, Player } from '../sprites';
+import { Arrow, Exit, Marker, Particles, Player, Vignette } from '../sprites';
 import type { Direction, Level, TileCollisionObject } from '../types';
 
 const GRAVITY_UPDATE_COOLDOWN_MS = 300;
 const DOUBLE_TAP_THRESHOLD_MS = 300;
 const BACKGROUND_DEPTH = -3;
-
-const VIGNETTE_X = 0.5;
-const VIGNETTE_Y = 0.5;
-const VIGNETTE_RADIUS = 0.75;
-const VIGNETTE_STRENGTH = 0.1;
-const VIGNETTE_COLOR = 0x000000;
 
 export class Game extends Phaser.Scene {
   gravityDirection: Direction = DIRECTION.DOWN;
@@ -36,13 +30,11 @@ export class Game extends Phaser.Scene {
   private spikeHitboxes!: Phaser.Physics.Arcade.StaticGroup;
   private player!: Player;
   private tileDebugGraphics!: Phaser.GameObjects.Graphics;
-  private uiCamera?: Phaser.Cameras.Scene2D.Camera;
+  private uiCamera!: Phaser.Cameras.Scene2D.Camera;
 
   private gravity = 500;
   private lastGravityUpdate = 0;
   private lastTap = { time: 0, x: 0, y: 0 };
-
-  private vignetteFilter?: Phaser.Filters.Vignette;
 
   constructor() {
     super(KEY.SCENE.GAME);
@@ -166,19 +158,9 @@ export class Game extends Phaser.Scene {
 
     this.fitCameraToMap(map);
 
-    this.addVignette();
+    new Vignette(this.cameras.main);
 
     this.renderHelpText(backgroundLayer, foregroundLayer, ...arrows);
-  }
-
-  private addVignette() {
-    this.vignetteFilter = this.cameras.main.filters.internal.addVignette(
-      VIGNETTE_X,
-      VIGNETTE_Y,
-      VIGNETTE_RADIUS,
-      VIGNETTE_STRENGTH,
-      VIGNETTE_COLOR,
-    );
   }
 
   /**
@@ -392,7 +374,7 @@ export class Game extends Phaser.Scene {
       return;
     }
 
-    this.uiCamera?.ignore(new Marker(this, worldX, worldY));
+    this.uiCamera.ignore(new Marker(this, worldX, worldY));
     this.player.setWalkTarget(worldX, worldY);
     this.lastTap.time = now;
     this.lastTap.x = worldX;
@@ -454,13 +436,6 @@ export class Game extends Phaser.Scene {
         this.groundLayer.renderDebug(this.tileDebugGraphics);
       }
     });
-  }
-
-  shutdown() {
-    if (this.vignetteFilter) {
-      this.cameras.main.filters.internal.remove(this.vignetteFilter);
-      this.vignetteFilter = undefined;
-    }
   }
 
   update() {
