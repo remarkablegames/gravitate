@@ -19,6 +19,7 @@ const DOUBLE_TAP_THRESHOLD_MS = 300;
 const BACKGROUND_DEPTH = -3;
 
 export class Game extends Phaser.Scene {
+  gravityDirection: Direction = DIRECTION.DOWN;
   isExiting = false;
   particles!: Particles;
 
@@ -32,7 +33,6 @@ export class Game extends Phaser.Scene {
   private uiCamera?: Phaser.Cameras.Scene2D.Camera;
 
   private gravity = 500;
-  private gravityDirection: Direction = DIRECTION.DOWN;
   private isShifting = false;
   private lastGravityUpdate = 0;
   private lastTap = { time: 0, x: 0, y: 0 };
@@ -61,7 +61,7 @@ export class Game extends Phaser.Scene {
     this.isExiting = false;
     this.isShifting = false;
     this.gravity = this.physics.world.gravity.y;
-    this.gravityDirection = DIRECTION.DOWN;
+    const gravityDirection = (this.gravityDirection = DIRECTION.DOWN);
 
     this.registry.set(KEY.DATA.MUSIC, this.level.music);
 
@@ -77,9 +77,9 @@ export class Game extends Phaser.Scene {
     const backgroundLayer = map.createLayer(TILEMAP_LAYER.BACKGROUND, tileset);
     backgroundLayer.setDepth(BACKGROUND_DEPTH);
 
-    this.particles.createAmbientEmitter(map, this.gravityDirection);
-    this.particles.createDustEmitter(this.gravityDirection);
-    this.particles.createShiftEmitter(map, this.gravityDirection);
+    this.particles.createAmbientEmitter(map, gravityDirection);
+    this.particles.createDustEmitter(gravityDirection);
+    this.particles.createShiftEmitter(map, gravityDirection);
 
     this.groundLayer = map.createLayer(
       TILEMAP_LAYER.GROUND,
@@ -335,24 +335,25 @@ export class Game extends Phaser.Scene {
     }
     this.lastGravityUpdate = now;
 
-    const arrowDirection = (arrow as Arrow).direction;
-    if (this.gravityDirection === arrowDirection) {
+    const previousDirection = this.gravityDirection;
+    const newDirection = (arrow as Arrow).direction;
+    if (previousDirection === newDirection) {
       return;
     }
 
     this.sound.play(KEY.AUDIO.SHIFT, { volume: 0.6 });
-    this.gravityDirection = arrowDirection;
 
-    const { x, y } = GRAVITY.VECTOR[this.gravityDirection];
+    const { x, y } = GRAVITY.VECTOR[newDirection];
     this.physics.world.gravity.set(x * this.gravity, y * this.gravity);
-    this.particles.updateAmbientGravity(this.gravityDirection);
+    this.particles.updateAmbientGravity(newDirection);
 
     this.isShifting = true;
-    this.player.setGravityDirection(this.gravityDirection, () => {
+    this.player.setGravityDirection(previousDirection, newDirection, () => {
       this.isShifting = false;
     });
 
-    this.particles.emitGravityShiftStreak(this.gravityDirection);
+    this.gravityDirection = newDirection;
+    this.particles.emitGravityShiftStreak(newDirection);
   };
 
   private handleExit = () => {

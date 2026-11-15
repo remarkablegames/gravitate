@@ -52,7 +52,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private walkSound: Phaser.Sound.BaseSound;
   private wasOnGround = true;
   private airborneSince = 0;
-  private gravityDirection: Direction = DIRECTION.DOWN;
   private gravityTween?: Phaser.Tweens.Tween;
   private isGravityShifting = false;
   private walkTarget: { x: number; y: number } | null = null;
@@ -80,36 +79,43 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private enablePhysics() {
     this.scene.physics.world.enable(this);
     this.scene.add.existing(this);
+    const { gravityDirection } = this.scene;
 
     // Rotate/flip the sprite and resize the collision box
     // so the player stands on the surface the gravity is pulling them towards
-    this.applyGravityPhysics(this.gravityDirection);
+    this.applyGravityPhysics(gravityDirection);
     this.stopGravityTween();
 
-    this.setRotation(GRAVITY_ROTATION[this.gravityDirection]);
+    this.setRotation(GRAVITY_ROTATION[gravityDirection]);
     this.setFlipX(false);
-    this.setFlipY(this.gravityDirection === DIRECTION.UP);
+    this.setFlipY(gravityDirection === DIRECTION.UP);
   }
 
   /**
    * Apply the new gravity physics and animate the visual rotation/flip
+   *
+   * @param previousDirection - The previous gravity direction
+   * @param newDirection - The new gravity direction
+   * @param onComplete - The finish callback
    */
-  setGravityDirection(direction: Direction, onComplete?: () => void) {
-    if (direction === this.gravityDirection) {
+  setGravityDirection(
+    previousDirection: Direction,
+    newDirection: Direction,
+    onComplete?: () => void,
+  ) {
+    if (previousDirection === newDirection) {
       onComplete?.();
       return;
     }
 
-    const previousDirection = this.gravityDirection;
-    this.gravityDirection = direction;
-    this.applyGravityPhysics(direction);
+    this.applyGravityPhysics(newDirection);
     this.stopGravityTween();
 
     this.isGravityShifting = true;
     this.setFlipX(false);
 
-    const targetRotation = GRAVITY_ROTATION[direction];
-    const targetFlipY = direction === DIRECTION.UP;
+    const targetRotation = GRAVITY_ROTATION[newDirection];
+    const targetFlipY = newDirection === DIRECTION.UP;
 
     const finish = () => {
       this.setRotation(targetRotation);
@@ -230,7 +236,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     // Left/right move the player along their local horizontal axis
     // When gravity pulls right, the player is rotated so their right is world up
-    switch (this.gravityDirection) {
+    switch (this.scene.gravityDirection) {
       case DIRECTION.RIGHT:
         return Number(left) - Number(right);
 
@@ -246,7 +252,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       return 0;
     }
 
-    switch (this.gravityDirection) {
+    switch (this.scene.gravityDirection) {
       case DIRECTION.LEFT:
       case DIRECTION.RIGHT:
         return (
@@ -264,7 +270,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   private isOnGround() {
-    switch (this.gravityDirection) {
+    switch (this.scene.gravityDirection) {
       case DIRECTION.DOWN:
         return this.body.blocked.down;
 
@@ -284,11 +290,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
    */
   private emitDust() {
     const { x, y } = this.getFeetPosition();
-    this.scene.particles.emitPlayerDust(x, y, this.gravityDirection);
+    this.scene.particles.emitPlayerDust(x, y, this.scene.gravityDirection);
   }
 
   private getFeetPosition() {
-    const { x, y } = GRAVITY.VECTOR[this.gravityDirection];
+    const { x, y } = GRAVITY.VECTOR[this.scene.gravityDirection];
     return {
       x: this.body.center.x + x * DUST_FEET_OFFSET_PX,
       y: this.body.center.y + y * DUST_FEET_OFFSET_PX,
@@ -303,7 +309,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.scene.sound.play(KEY.AUDIO.JUMP, { volume: 0.8 });
     this.emitDust();
 
-    switch (this.gravityDirection) {
+    switch (this.scene.gravityDirection) {
       case DIRECTION.DOWN:
         this.setVelocityY(-PLAYER_VELOCITY);
         break;
@@ -354,9 +360,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.jump();
     }
 
+    const { gravityDirection } = this.scene;
     const isSideways =
-      this.gravityDirection === DIRECTION.LEFT ||
-      this.gravityDirection === DIRECTION.RIGHT;
+      gravityDirection === DIRECTION.LEFT ||
+      gravityDirection === DIRECTION.RIGHT;
     const walkDirection = this.walkTarget
       ? this.getWalkDirectionToTarget()
       : this.getWalkDirection();
@@ -403,8 +410,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       const right = this.cursors.right.isDown || this.cursors.d.isDown;
 
       if (
-        this.gravityDirection === DIRECTION.DOWN ||
-        this.gravityDirection === DIRECTION.UP
+        gravityDirection === DIRECTION.DOWN ||
+        gravityDirection === DIRECTION.UP
       ) {
         let travelDirection = right ? 1 : left ? -1 : 0;
 
@@ -435,7 +442,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
                 ? -1
                 : 0;
 
-          if (this.gravityDirection === DIRECTION.LEFT) {
+          if (gravityDirection === DIRECTION.LEFT) {
             switch (travelDirection) {
               case 1:
                 this.setFlipX(false);
