@@ -22,6 +22,10 @@ export const IMAGE = {
   ARROW: 'ARROW',
 } as const;
 
+export const TEXTURE = {
+  PARTICLE: 'PARTICLE',
+} as const;
+
 export const SCENE = {
   BOOT: 'BOOT',
   COVER: 'COVER',
