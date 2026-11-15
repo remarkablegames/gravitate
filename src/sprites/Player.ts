@@ -46,6 +46,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   declare scene: Game;
 
   isDead = false;
+  isShifting = false;
 
   private cursors: Cursors;
   private game: Game;
@@ -53,7 +54,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private wasOnGround = true;
   private airborneSince = 0;
   private gravityTween?: Phaser.Tweens.Tween;
-  private isGravityShifting = false;
   private walkTarget: { x: number; y: number } | null = null;
 
   constructor(
@@ -96,33 +96,26 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
    *
    * @param previousDirection - The previous gravity direction
    * @param newDirection - The new gravity direction
-   * @param onComplete - The finish callback
    */
-  setGravityDirection(
-    previousDirection: Direction,
-    newDirection: Direction,
-    onComplete?: () => void,
-  ) {
+  setGravityDirection(previousDirection: Direction, newDirection: Direction) {
     if (previousDirection === newDirection) {
-      onComplete?.();
       return;
     }
 
     this.applyGravityPhysics(newDirection);
     this.stopGravityTween();
 
-    this.isGravityShifting = true;
+    this.isShifting = true;
     this.setFlipX(false);
 
     const targetRotation = GRAVITY_ROTATION[newDirection];
     const targetFlipY = newDirection === DIRECTION.UP;
 
-    const finish = () => {
+    const onComplete = () => {
       this.setRotation(targetRotation);
       this.setFlipY(targetFlipY);
-      this.isGravityShifting = false;
+      this.isShifting = false;
       this.gravityTween = undefined;
-      onComplete?.();
     };
 
     // Up and down share the same rotation, so fold the sprite to make the
@@ -141,7 +134,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         ease: 'Sine.InOut',
         yoyo: true,
         onYoyo: () => this.setFlipY(targetFlipY),
-        onComplete: finish,
+        onComplete,
       });
       return;
     }
@@ -152,7 +145,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       rotation: targetRotation,
       duration: GRAVITY_TWEEN_DURATION_MS,
       ease: 'Sine.InOut',
-      onComplete: finish,
+      onComplete,
     });
   }
 
@@ -177,7 +170,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private stopGravityTween() {
     this.gravityTween?.stop();
     this.gravityTween = undefined;
-    this.isGravityShifting = false;
+    this.isShifting = false;
   }
 
   setWalkTarget(x: number, y: number) {
@@ -405,7 +398,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // Face the direction of travel along the player's local horizontal axis,
     // including when the player is rotated against a wall
     // Skip this while the gravity tween is running so the sprite doesn't flip mid-rotation
-    if (!this.isGravityShifting) {
+    if (!this.isShifting) {
       const left = this.cursors.left.isDown || this.cursors.a.isDown;
       const right = this.cursors.right.isDown || this.cursors.d.isDown;
 

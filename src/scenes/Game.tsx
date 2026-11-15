@@ -33,7 +33,6 @@ export class Game extends Phaser.Scene {
   private uiCamera?: Phaser.Cameras.Scene2D.Camera;
 
   private gravity = 500;
-  private isShifting = false;
   private lastGravityUpdate = 0;
   private lastTap = { time: 0, x: 0, y: 0 };
 
@@ -59,7 +58,6 @@ export class Game extends Phaser.Scene {
 
   create() {
     this.isExiting = false;
-    this.isShifting = false;
     this.gravity = this.physics.world.gravity.y;
     const gravityDirection = (this.gravityDirection = DIRECTION.DOWN);
 
@@ -325,7 +323,7 @@ export class Game extends Phaser.Scene {
       | Phaser.Physics.Arcade.StaticBody
       | Phaser.Tilemaps.Tile,
   ) => {
-    if (this.player.isDead || this.isExiting || this.isShifting) {
+    if (this.player.isDead || this.isExiting || this.player.isShifting) {
       return;
     }
 
@@ -347,12 +345,9 @@ export class Game extends Phaser.Scene {
     this.physics.world.gravity.set(x * this.gravity, y * this.gravity);
     this.particles.updateAmbientGravity(newDirection);
 
-    this.isShifting = true;
-    this.player.setGravityDirection(previousDirection, newDirection, () => {
-      this.isShifting = false;
-    });
-
+    this.player.setGravityDirection(previousDirection, newDirection);
     this.gravityDirection = newDirection;
+
     this.particles.emitGravityShiftStreak(newDirection);
   };
 
