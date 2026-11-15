@@ -20,7 +20,7 @@ const BACKGROUND_DEPTH = -3;
 
 export class Game extends Phaser.Scene {
   gravityDirection: Direction = DIRECTION.DOWN;
-  isExiting = false;
+  level!: Level;
   particles!: Particles;
 
   private groundLayer!: Phaser.Tilemaps.TilemapLayer;
@@ -35,8 +35,6 @@ export class Game extends Phaser.Scene {
   private gravity = 500;
   private lastGravityUpdate = 0;
   private lastTap = { time: 0, x: 0, y: 0 };
-
-  private level!: Level;
 
   constructor() {
     super(KEY.SCENE.GAME);
@@ -57,7 +55,6 @@ export class Game extends Phaser.Scene {
   }
 
   create() {
-    this.isExiting = false;
     this.gravity = this.physics.world.gravity.y;
     const gravityDirection = (this.gravityDirection = DIRECTION.DOWN);
 
@@ -151,7 +148,7 @@ export class Game extends Phaser.Scene {
     });
 
     // Go to next level when player reaches exit
-    this.physics.world.addOverlap(exits, this.player, this.handleExit);
+    this.physics.world.addOverlap(exits, this.player, this.player.exit);
 
     // Change gravity direction when player touches arrow
     this.physics.world.addOverlap(arrows, this.player, this.handleArrow);
@@ -323,7 +320,7 @@ export class Game extends Phaser.Scene {
       | Phaser.Physics.Arcade.StaticBody
       | Phaser.Tilemaps.Tile,
   ) => {
-    if (this.player.isDead || this.isExiting || this.player.isShifting) {
+    if (this.player.isDead || this.player.isExiting || this.player.isShifting) {
       return;
     }
 
@@ -351,24 +348,8 @@ export class Game extends Phaser.Scene {
     this.particles.emitGravityShiftStreak(newDirection);
   };
 
-  private handleExit = () => {
-    if (this.isExiting) {
-      return;
-    }
-
-    this.isExiting = true;
-    this.sound.stopByKey(KEY.AUDIO.WALK);
-    this.sound.play(KEY.AUDIO.EXIT, { volume: 0.7 });
-    this.cameras.main.fade(250, 0, 0, 0);
-
-    this.cameras.main.once('camerafadeoutcomplete', () => {
-      const nextLevel = this.level.level + 1;
-      this.scene.start(KEY.SCENE.GAME, { level: nextLevel });
-    });
-  };
-
   private handlePointerDown = (pointer: Phaser.Input.Pointer) => {
-    if (this.player.isDead || this.isExiting) {
+    if (this.player.isDead || this.player.isExiting) {
       return;
     }
 
@@ -456,7 +437,7 @@ export class Game extends Phaser.Scene {
   }
 
   update() {
-    if (this.player.isDead || this.isExiting) {
+    if (this.player.isDead || this.player.isExiting) {
       return;
     }
 

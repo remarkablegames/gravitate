@@ -45,6 +45,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   declare body: Phaser.Physics.Arcade.Body;
   declare scene: Game;
 
+  isExiting = false;
   isDead = false;
   isShifting = false;
 
@@ -321,8 +322,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
+  /**
+   * Player dies when it collides with spikes or is out of bounds
+   */
   kill = () => {
-    if (this.isDead || this.scene.isExiting) {
+    if (this.isDead || this.isExiting) {
       return;
     }
 
@@ -339,6 +343,25 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.scene.cameras.main.once('camerafadeoutcomplete', () => {
       this.destroy();
       this.game.scene.restart();
+    });
+  };
+
+  /**
+   * Player beats level when it reaches the blue portal
+   */
+  exit = () => {
+    if (this.isDead || this.isExiting) {
+      return;
+    }
+
+    this.isExiting = true;
+    this.scene.sound.stopByKey(KEY.AUDIO.WALK);
+    this.scene.sound.play(KEY.AUDIO.EXIT, { volume: 0.7 });
+    this.scene.cameras.main.fade(250, 0, 0, 0);
+
+    this.scene.cameras.main.once('camerafadeoutcomplete', () => {
+      const nextLevel = this.scene.level.level + 1;
+      this.game.scene.start(KEY.SCENE.GAME, { level: nextLevel });
     });
   };
 
