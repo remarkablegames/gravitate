@@ -29,6 +29,7 @@ export class Game extends Phaser.Scene {
   private gravity = 500;
   private gravityDirection: Direction = DIRECTION.DOWN;
   private isPlayerDead = false;
+  private isShifting = false;
   private lastGravityUpdate = 0;
   private lastTap = { time: 0, x: 0, y: 0 };
 
@@ -56,6 +57,7 @@ export class Game extends Phaser.Scene {
   create() {
     this.isPlayerDead = false;
     this.isExiting = false;
+    this.isShifting = false;
     this.gravity = this.physics.world.gravity.y;
     this.gravityDirection = DIRECTION.DOWN;
 
@@ -314,6 +316,10 @@ export class Game extends Phaser.Scene {
       | Phaser.Physics.Arcade.StaticBody
       | Phaser.Tilemaps.Tile,
   ) => {
+    if (this.isPlayerDead || this.isExiting || this.isShifting) {
+      return;
+    }
+
     const { now } = this.time;
     if (now - this.lastGravityUpdate < GRAVITY_UPDATE_COOLDOWN_MS) {
       return;
@@ -343,7 +349,10 @@ export class Game extends Phaser.Scene {
         break;
     }
 
-    this.player.setGravityDirection(this.gravityDirection);
+    this.isShifting = true;
+    this.player.setGravityDirection(this.gravityDirection, () => {
+      this.isShifting = false;
+    });
   };
 
   private handleExit = () => {
