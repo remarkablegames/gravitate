@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 
-import { DIRECTION, KEY } from '../constants';
+import { DIRECTION, GRAVITY, KEY } from '../constants';
+import type { Game } from '../scenes/Game';
 import type { Direction } from '../types';
 
 const ANIMATION = {
@@ -15,6 +16,7 @@ type Cursors = Record<
 
 const PLAYER_VELOCITY = 250;
 const LAND_MIN_AIRBORNE_MS = 150;
+const DUST_FEET_OFFSET_PX = 7;
 const WALK_THRESHOLD_PX = 4;
 const DECELERATION_DISTANCE_PX = 40;
 const WALK_SOUND_VOLUME = 0.3;
@@ -22,39 +24,39 @@ const GRAVITY_TWEEN_DURATION_MS = 180;
 const GRAVITY_FLIP_SCALE = 0.05;
 
 /**
- * Collision box (size and offset) for each gravity direction, aligned to the
- * player sprite after it is rotated/flipped to match the gravity.
+ * Collision box (size and offset) for each gravity direction,
+ * aligned to the player sprite after it's rotated/flipped to match the gravity
  */
-const BODY_CONFIG: Record<
-  Direction,
-  { width: number; height: number; offsetX: number; offsetY: number }
-> = {
+const BODY_CONFIG = {
   [DIRECTION.DOWN]: { width: 6, height: 13, offsetX: 13, offsetY: 10 },
   [DIRECTION.UP]: { width: 6, height: 13, offsetX: 13, offsetY: 9 },
   [DIRECTION.LEFT]: { width: 13, height: 6, offsetX: 9, offsetY: 13 },
   [DIRECTION.RIGHT]: { width: 13, height: 6, offsetX: 10, offsetY: 13 },
-};
+} as const;
 
-const GRAVITY_ROTATION: Record<Direction, number> = {
+const GRAVITY_ROTATION = {
   [DIRECTION.DOWN]: 0,
   [DIRECTION.UP]: 0,
   [DIRECTION.LEFT]: Math.PI / 2,
   [DIRECTION.RIGHT]: -Math.PI / 2,
-};
+} as const;
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
   declare body: Phaser.Physics.Arcade.Body;
+  declare scene: Game;
+
+  gravityDirection: Direction = DIRECTION.DOWN;
+
   private cursors: Cursors;
   private walkSound: Phaser.Sound.BaseSound;
   private wasOnGround = true;
   private airborneSince = 0;
   private gravityTween?: Phaser.Tweens.Tween;
   private isGravityShifting = false;
-  gravityDirection: Direction = DIRECTION.DOWN;
   private walkTarget: { x: number; y: number } | null = null;
 
   constructor(
-    scene: Phaser.Scene,
+    scene: Game,
     x: number,
     y: number,
     texture = KEY.SPRITESHEET.PLAYER,
@@ -352,6 +354,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.scene.time.now - this.airborneSince > LAND_MIN_AIRBORNE_MS
       ) {
         this.scene.sound.play(KEY.AUDIO.LAND, { volume: 0.6 });
+        this.emitDust();
       }
     } else {
       this.anims.stop();
@@ -429,12 +432,29 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
+  /**
+   * Emit dust particles when the player jumps/lands
+   */
+  private emitDust() {
+    const { x, y } = this.getFeetPosition();
+    this.scene.particles.emitPlayerDust(x, y, this.gravityDirection);
+  }
+
+  private getFeetPosition() {
+    const { x, y } = GRAVITY.VECTOR[this.gravityDirection];
+    return {
+      x: this.body.center.x + x * DUST_FEET_OFFSET_PX,
+      y: this.body.center.y + y * DUST_FEET_OFFSET_PX,
+    };
+  }
+
   jump() {
     if (!this.isOnGround()) {
       return;
     }
 
     this.scene.sound.play(KEY.AUDIO.JUMP, { volume: 0.8 });
+    this.emitDust();
 
     switch (this.gravityDirection) {
       case DIRECTION.DOWN:

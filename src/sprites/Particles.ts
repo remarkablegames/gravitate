@@ -8,6 +8,18 @@ const SHIFT_STREAK_ANGLE_SPREAD = 12;
 const SHIFT_STREAK_SPEED_MIN = 50;
 const SHIFT_STREAK_SPEED_MAX = 100;
 
+const DUST = {
+  COUNT: 6,
+  LIFESPAN_MIN_MS: 260,
+  LIFESPAN_MAX_MS: 420,
+  SPEED_MIN: 18,
+  SPEED_MAX: 45,
+  GRAVITY: 60,
+  ALPHA: 0.32,
+  SCALE_MAX: 1,
+  TINT: 0xc9d8de,
+} as const;
+
 const AMBIENT_DUST = {
   COUNT: 32,
   FREQUENCY_MS: 300,
@@ -27,6 +39,7 @@ const AMBIENT_DUST = {
 export class Particles {
   private scene: Phaser.Scene;
   ambientEmitter!: Phaser.GameObjects.Particles.ParticleEmitter;
+  dustEmitter!: Phaser.GameObjects.Particles.ParticleEmitter;
   shiftEmitter!: Phaser.GameObjects.Particles.ParticleEmitter;
 
   constructor(scene: Phaser.Scene) {
@@ -60,6 +73,9 @@ export class Particles {
     };
   }
 
+  /**
+   * Background air particles
+   */
   createAmbientEmitter(
     map: Phaser.Tilemaps.Tilemap,
     gravityDirection: Direction,
@@ -88,6 +104,29 @@ export class Particles {
     });
   }
 
+  /**
+   * Emit dust when player jumps/lands
+   */
+  createDustEmitter(gravityDirection: Direction) {
+    const { x, y } = GRAVITY.VECTOR[gravityDirection];
+
+    this.dustEmitter = this.scene.add.particles(0, 0, KEY.TEXTURE.PARTICLE, {
+      emitting: false,
+      lifespan: { min: DUST.LIFESPAN_MIN_MS, max: DUST.LIFESPAN_MAX_MS },
+      speed: { min: DUST.SPEED_MIN, max: DUST.SPEED_MAX },
+      angle: { min: 0, max: 360 },
+      gravityX: x * DUST.GRAVITY,
+      gravityY: y * DUST.GRAVITY,
+      alpha: { start: DUST.ALPHA, end: 0 },
+      scale: { start: DUST.SCALE_MAX, end: 0 },
+      tint: DUST.TINT,
+      maxAliveParticles: DUST.COUNT * 4,
+    });
+  }
+
+  /**
+   * Background air particles when gravity changes
+   */
   createShiftEmitter(
     map: Phaser.Tilemaps.Tilemap,
     gravityDirection: Direction,
@@ -112,6 +151,25 @@ export class Particles {
       x * AMBIENT_DUST.GRAVITY,
       y * AMBIENT_DUST.GRAVITY,
     );
+  }
+
+  emitPlayerDust(x: number, y: number, gravityDirection: Direction) {
+    this.emitDust(DUST.COUNT, x, y, gravityDirection);
+  }
+
+  private emitDust(
+    count: number,
+    x: number,
+    y: number,
+    gravityDirection: Direction,
+  ) {
+    const { x: gravityX, y: gravityY } = GRAVITY.VECTOR[gravityDirection];
+
+    this.dustEmitter.setParticleGravity(
+      gravityX * DUST.GRAVITY,
+      gravityY * DUST.GRAVITY,
+    );
+    this.dustEmitter.explode(count, x, y);
   }
 
   emitGravityShiftStreak(gravityDirection: Direction) {

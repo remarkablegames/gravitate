@@ -19,13 +19,14 @@ const DOUBLE_TAP_THRESHOLD_MS = 300;
 const BACKGROUND_DEPTH = -3;
 
 export class Game extends Phaser.Scene {
+  particles!: Particles;
+
   private groundLayer!: Phaser.Tilemaps.TilemapLayer;
   private platformsLayer!: Phaser.Tilemaps.TilemapLayer;
   private spikesLayer!: Phaser.Tilemaps.TilemapLayer;
   private platformHitboxes!: Phaser.Physics.Arcade.StaticGroup;
   private spikeHitboxes!: Phaser.Physics.Arcade.StaticGroup;
   private player!: Player;
-  private particles!: Particles;
   private tileDebugGraphics!: Phaser.GameObjects.Graphics;
   private uiCamera?: Phaser.Cameras.Scene2D.Camera;
 
@@ -79,6 +80,7 @@ export class Game extends Phaser.Scene {
     backgroundLayer.setDepth(BACKGROUND_DEPTH);
 
     this.particles.createAmbientEmitter(map, this.gravityDirection);
+    this.particles.createDustEmitter(this.gravityDirection);
     this.particles.createShiftEmitter(map, this.gravityDirection);
 
     this.groundLayer = map.createLayer(
@@ -440,6 +442,7 @@ export class Game extends Phaser.Scene {
       ignoreList.concat(
         this.player,
         this.particles.ambientEmitter,
+        this.particles.dustEmitter,
         this.particles.shiftEmitter,
         this.groundLayer,
         this.platformsLayer,
