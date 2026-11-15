@@ -22,6 +22,7 @@ const DECELERATION_DISTANCE_PX = 40;
 const WALK_SOUND_VOLUME = 0.3;
 const GRAVITY_TWEEN_DURATION_MS = 180;
 const GRAVITY_FLIP_SCALE = 0.05;
+const CAMERA_FADE_DURATION = 250;
 
 /**
  * Collision box (size and offset) for each gravity direction,
@@ -335,7 +336,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.scene.sound.stopByKey(KEY.AUDIO.WALK);
     this.scene.sound.play(KEY.AUDIO.DEATH, { volume: 0.6 });
     this.scene.cameras.main.shake(100, 0.001);
-    this.scene.cameras.main.fade(250, 0, 0, 0);
+    this.scene.cameras.main.fade(CAMERA_FADE_DURATION, 0, 0, 0);
 
     // Freeze player to leave them on the screen while fading
     this.body.moves = false;
@@ -355,9 +356,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     this.isExiting = true;
+
+    this.scene.tweens.add({
+      targets: this,
+      alpha: 0,
+      duration: CAMERA_FADE_DURATION / 2,
+    });
+
     this.scene.sound.stopByKey(KEY.AUDIO.WALK);
     this.scene.sound.play(KEY.AUDIO.EXIT, { volume: 0.7 });
-    this.scene.cameras.main.fade(250, 0, 0, 0);
+    this.scene.cameras.main.fade(CAMERA_FADE_DURATION, 0, 0, 0);
 
     this.scene.cameras.main.once('camerafadeoutcomplete', () => {
       const nextLevel = this.scene.level.level + 1;
