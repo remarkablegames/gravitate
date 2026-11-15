@@ -327,6 +327,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     this.isDead = true;
+    this.setTintMode(Phaser.TintModes.FILL);
     this.scene.sound.stopByKey(KEY.AUDIO.WALK);
     this.scene.sound.play(KEY.AUDIO.DEATH, { volume: 0.6 });
     this.scene.cameras.main.shake(100, 0.001);
