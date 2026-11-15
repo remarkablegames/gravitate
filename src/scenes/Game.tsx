@@ -18,6 +18,12 @@ const GRAVITY_UPDATE_COOLDOWN_MS = 300;
 const DOUBLE_TAP_THRESHOLD_MS = 300;
 const BACKGROUND_DEPTH = -3;
 
+const VIGNETTE_X = 0.5;
+const VIGNETTE_Y = 0.5;
+const VIGNETTE_RADIUS = 0.75;
+const VIGNETTE_STRENGTH = 0.1;
+const VIGNETTE_COLOR = 0x000000;
+
 export class Game extends Phaser.Scene {
   gravityDirection: Direction = DIRECTION.DOWN;
   level!: Level;
@@ -35,6 +41,8 @@ export class Game extends Phaser.Scene {
   private gravity = 500;
   private lastGravityUpdate = 0;
   private lastTap = { time: 0, x: 0, y: 0 };
+
+  private vignetteFilter?: Phaser.Filters.Vignette;
 
   constructor() {
     super(KEY.SCENE.GAME);
@@ -158,7 +166,19 @@ export class Game extends Phaser.Scene {
 
     this.fitCameraToMap(map);
 
+    this.addVignette();
+
     this.renderHelpText(backgroundLayer, foregroundLayer, ...arrows);
+  }
+
+  private addVignette() {
+    this.vignetteFilter = this.cameras.main.filters.internal.addVignette(
+      VIGNETTE_X,
+      VIGNETTE_Y,
+      VIGNETTE_RADIUS,
+      VIGNETTE_STRENGTH,
+      VIGNETTE_COLOR,
+    );
   }
 
   /**
@@ -434,6 +454,13 @@ export class Game extends Phaser.Scene {
         this.groundLayer.renderDebug(this.tileDebugGraphics);
       }
     });
+  }
+
+  shutdown() {
+    if (this.vignetteFilter) {
+      this.cameras.main.filters.internal.remove(this.vignetteFilter);
+      this.vignetteFilter = undefined;
+    }
   }
 
   update() {
