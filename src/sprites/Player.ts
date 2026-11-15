@@ -216,8 +216,114 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
+  private isJumpPressed() {
+    // Up always jumps, regardless of the gravity direction
+    return this.cursors.up.isDown || this.cursors.w.isDown;
+  }
+
+  private getWalkDirection() {
+    const left = this.cursors.left.isDown || this.cursors.a.isDown;
+    const right = this.cursors.right.isDown || this.cursors.d.isDown;
+
+    // Left/right move the player along their local horizontal axis
+    // When gravity pulls right, the player is rotated so their right is world up
+    switch (this.gravityDirection) {
+      case DIRECTION.RIGHT:
+        return Number(left) - Number(right);
+
+      case DIRECTION.DOWN:
+      case DIRECTION.UP:
+      case DIRECTION.LEFT:
+        return Number(right) - Number(left);
+    }
+  }
+
+  private getWalkDirectionToTarget() {
+    if (!this.walkTarget) {
+      return 0;
+    }
+
+    switch (this.gravityDirection) {
+      case DIRECTION.LEFT:
+      case DIRECTION.RIGHT:
+        return (
+          Number(this.walkTarget.y > this.y) -
+          Number(this.walkTarget.y < this.y)
+        );
+
+      case DIRECTION.DOWN:
+      case DIRECTION.UP:
+        return (
+          Number(this.walkTarget.x > this.x) -
+          Number(this.walkTarget.x < this.x)
+        );
+    }
+  }
+
+  private isOnGround() {
+    switch (this.gravityDirection) {
+      case DIRECTION.DOWN:
+        return this.body.blocked.down;
+
+      case DIRECTION.UP:
+        return this.body.blocked.up;
+
+      case DIRECTION.LEFT:
+        return this.body.blocked.left;
+
+      case DIRECTION.RIGHT:
+        return this.body.blocked.right;
+    }
+  }
+
+  /**
+   * Emit dust particles when the player jumps/lands
+   */
+  private emitDust() {
+    const { x, y } = this.getFeetPosition();
+    this.scene.particles.emitPlayerDust(x, y, this.gravityDirection);
+  }
+
+  private getFeetPosition() {
+    const { x, y } = GRAVITY.VECTOR[this.gravityDirection];
+    return {
+      x: this.body.center.x + x * DUST_FEET_OFFSET_PX,
+      y: this.body.center.y + y * DUST_FEET_OFFSET_PX,
+    };
+  }
+
+  jump() {
+    if (!this.isOnGround()) {
+      return;
+    }
+
+    this.scene.sound.play(KEY.AUDIO.JUMP, { volume: 0.8 });
+    this.emitDust();
+
+    switch (this.gravityDirection) {
+      case DIRECTION.DOWN:
+        this.setVelocityY(-PLAYER_VELOCITY);
+        break;
+
+      case DIRECTION.UP:
+        this.setVelocityY(PLAYER_VELOCITY);
+        break;
+
+      case DIRECTION.LEFT:
+        this.setVelocityX(PLAYER_VELOCITY);
+        break;
+
+      case DIRECTION.RIGHT:
+        this.setVelocityX(-PLAYER_VELOCITY);
+        break;
+    }
+  }
+
+  /**
+   * Update lifecycle
+   */
   update() {
-    // Only allow the player to jump if they are on the ground (relative to gravity)
+    // Allow the player to jump if they're on the ground (relative to gravity)
     const isOnGround = this.isOnGround();
     const acceleration = isOnGround ? 300 : 100;
 
@@ -370,108 +476,5 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     this.wasOnGround = isOnGround;
-  }
-
-  private isJumpPressed() {
-    // Up always jumps, regardless of the gravity direction
-    return this.cursors.up.isDown || this.cursors.w.isDown;
-  }
-
-  private getWalkDirection() {
-    const left = this.cursors.left.isDown || this.cursors.a.isDown;
-    const right = this.cursors.right.isDown || this.cursors.d.isDown;
-
-    // Left/right move the player along their local horizontal axis
-    // When gravity pulls right, the player is rotated so their right is world up
-    switch (this.gravityDirection) {
-      case DIRECTION.RIGHT:
-        return Number(left) - Number(right);
-
-      case DIRECTION.DOWN:
-      case DIRECTION.UP:
-      case DIRECTION.LEFT:
-        return Number(right) - Number(left);
-    }
-  }
-
-  private getWalkDirectionToTarget() {
-    if (!this.walkTarget) {
-      return 0;
-    }
-
-    switch (this.gravityDirection) {
-      case DIRECTION.LEFT:
-      case DIRECTION.RIGHT:
-        return (
-          Number(this.walkTarget.y > this.y) -
-          Number(this.walkTarget.y < this.y)
-        );
-
-      case DIRECTION.DOWN:
-      case DIRECTION.UP:
-        return (
-          Number(this.walkTarget.x > this.x) -
-          Number(this.walkTarget.x < this.x)
-        );
-    }
-  }
-
-  private isOnGround() {
-    switch (this.gravityDirection) {
-      case DIRECTION.DOWN:
-        return this.body.blocked.down;
-
-      case DIRECTION.UP:
-        return this.body.blocked.up;
-
-      case DIRECTION.LEFT:
-        return this.body.blocked.left;
-
-      case DIRECTION.RIGHT:
-        return this.body.blocked.right;
-    }
-  }
-
-  /**
-   * Emit dust particles when the player jumps/lands
-   */
-  private emitDust() {
-    const { x, y } = this.getFeetPosition();
-    this.scene.particles.emitPlayerDust(x, y, this.gravityDirection);
-  }
-
-  private getFeetPosition() {
-    const { x, y } = GRAVITY.VECTOR[this.gravityDirection];
-    return {
-      x: this.body.center.x + x * DUST_FEET_OFFSET_PX,
-      y: this.body.center.y + y * DUST_FEET_OFFSET_PX,
-    };
-  }
-
-  jump() {
-    if (!this.isOnGround()) {
-      return;
-    }
-
-    this.scene.sound.play(KEY.AUDIO.JUMP, { volume: 0.8 });
-    this.emitDust();
-
-    switch (this.gravityDirection) {
-      case DIRECTION.DOWN:
-        this.setVelocityY(-PLAYER_VELOCITY);
-        break;
-
-      case DIRECTION.UP:
-        this.setVelocityY(PLAYER_VELOCITY);
-        break;
-
-      case DIRECTION.LEFT:
-        this.setVelocityX(PLAYER_VELOCITY);
-        break;
-
-      case DIRECTION.RIGHT:
-        this.setVelocityX(-PLAYER_VELOCITY);
-        break;
-    }
   }
 }
