@@ -19,6 +19,7 @@ const DOUBLE_TAP_THRESHOLD_MS = 300;
 const BACKGROUND_DEPTH = -3;
 
 export class Game extends Phaser.Scene {
+  isExiting = false;
   particles!: Particles;
 
   private groundLayer!: Phaser.Tilemaps.TilemapLayer;
@@ -32,13 +33,11 @@ export class Game extends Phaser.Scene {
 
   private gravity = 500;
   private gravityDirection: Direction = DIRECTION.DOWN;
-  private isPlayerDead = false;
   private isShifting = false;
   private lastGravityUpdate = 0;
   private lastTap = { time: 0, x: 0, y: 0 };
 
   private level!: Level;
-  private isExiting = false;
 
   constructor() {
     super(KEY.SCENE.GAME);
@@ -59,7 +58,6 @@ export class Game extends Phaser.Scene {
   }
 
   create() {
-    this.isPlayerDead = false;
     this.isExiting = false;
     this.isShifting = false;
     this.gravity = this.physics.world.gravity.y;
@@ -143,7 +141,7 @@ export class Game extends Phaser.Scene {
     this.physics.world.addOverlap(
       this.player,
       this.spikeHitboxes,
-      this.killPlayer,
+      this.player.kill,
     );
 
     // Place exit
@@ -327,7 +325,7 @@ export class Game extends Phaser.Scene {
       | Phaser.Physics.Arcade.StaticBody
       | Phaser.Tilemaps.Tile,
   ) => {
-    if (this.isPlayerDead || this.isExiting || this.isShifting) {
+    if (this.player.isDead || this.isExiting || this.isShifting) {
       return;
     }
 
@@ -373,28 +371,8 @@ export class Game extends Phaser.Scene {
     });
   };
 
-  private killPlayer = () => {
-    if (this.isPlayerDead || this.isExiting) {
-      return;
-    }
-
-    this.isPlayerDead = true;
-    this.sound.stopByKey(KEY.AUDIO.WALK);
-    this.sound.play(KEY.AUDIO.DEATH, { volume: 0.6 });
-    this.cameras.main.shake(100, 0.001);
-    this.cameras.main.fade(250, 0, 0, 0);
-
-    // Freeze player to leave them on the screen while fading
-    this.player.body.moves = false;
-
-    this.cameras.main.once('camerafadeoutcomplete', () => {
-      this.player.destroy();
-      this.scene.restart();
-    });
-  };
-
   private handlePointerDown = (pointer: Phaser.Input.Pointer) => {
-    if (this.isPlayerDead || this.isExiting) {
+    if (this.player.isDead || this.isExiting) {
       return;
     }
 
@@ -482,7 +460,7 @@ export class Game extends Phaser.Scene {
   }
 
   update() {
-    if (this.isPlayerDead || this.isExiting) {
+    if (this.player.isDead || this.isExiting) {
       return;
     }
 
@@ -496,7 +474,7 @@ export class Game extends Phaser.Scene {
       this.player.y < 0 ||
       this.player.y > height
     ) {
-      this.killPlayer();
+      this.player.kill();
     }
   }
 }

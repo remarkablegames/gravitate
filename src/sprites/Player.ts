@@ -45,12 +45,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   declare body: Phaser.Physics.Arcade.Body;
   declare scene: Game;
 
-  gravityDirection: Direction = DIRECTION.DOWN;
+  isDead = false;
 
   private cursors: Cursors;
+  private game: Game;
   private walkSound: Phaser.Sound.BaseSound;
   private wasOnGround = true;
   private airborneSince = 0;
+  private gravityDirection: Direction = DIRECTION.DOWN;
   private gravityTween?: Phaser.Tweens.Tween;
   private isGravityShifting = false;
   private walkTarget: { x: number; y: number } | null = null;
@@ -64,6 +66,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   ) {
     super(scene, x, y, texture, frame);
 
+    this.game = scene;
     this.cursors = this.createCursorKeys();
     this.walkSound = scene.sound.add(KEY.AUDIO.WALK, {
       loop: true,
@@ -318,6 +321,26 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         break;
     }
   }
+
+  kill = () => {
+    if (this.isDead || this.scene.isExiting) {
+      return;
+    }
+
+    this.isDead = true;
+    this.scene.sound.stopByKey(KEY.AUDIO.WALK);
+    this.scene.sound.play(KEY.AUDIO.DEATH, { volume: 0.6 });
+    this.scene.cameras.main.shake(100, 0.001);
+    this.scene.cameras.main.fade(250, 0, 0, 0);
+
+    // Freeze player to leave them on the screen while fading
+    this.body.moves = false;
+
+    this.scene.cameras.main.once('camerafadeoutcomplete', () => {
+      this.destroy();
+      this.game.scene.restart();
+    });
+  };
 
   /**
    * Update lifecycle
