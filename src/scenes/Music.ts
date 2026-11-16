@@ -116,7 +116,7 @@ export class Music extends Phaser.Scene {
     }
 
     const track = (this.sound.getAll(key).at(0) ??
-      this.sound.add(key, { loop: true, volume: 0 })) as MusicTrack;
+      this.sound.add(key, { loop: true, volume: 0 })) as unknown as MusicTrack;
 
     this.currentTrack = track;
     this.tweens.killTweensOf(track);

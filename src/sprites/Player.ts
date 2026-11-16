@@ -53,11 +53,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   isDead = false;
   isShifting = false;
 
-  private cursors: Cursors;
-  private game: Game;
-  private walkSound: Phaser.Sound.BaseSound;
-  private wasOnGround = true;
-  private airborneSince = 0;
+  private cursors;
+  private game;
+  private walkSound;
   private gravityTween?: Phaser.Tweens.Tween;
   private squashTween?: Phaser.Tweens.Tween;
   private squashBody?: {
@@ -66,6 +64,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     anchorX: number;
     anchorY: number;
   };
+
+  private wasOnGround = true;
+  private airborneSince = 0;
   private walkTarget: { x: number; y: number } | null = null;
 
   constructor(
@@ -201,7 +202,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   /**
-   * Create the animations we need from the player spritesheet
+   * Create the animations from the player spritesheet
    */
   private createAnimations() {
     const anims = this.scene.anims;
@@ -521,8 +522,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       }
     }
 
-    // Face the direction of travel along the player's local horizontal axis,
-    // including when the player is rotated against a wall
+    // Face the direction of travel along the player's local horizontal axis, including when the player is rotated against a wall
     // Skip this while the gravity tween is running so the sprite doesn't flip mid-rotation
     if (!this.isShifting) {
       const left = this.cursors.left.isDown || this.cursors.a.isDown;
