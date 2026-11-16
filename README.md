@@ -22,13 +22,13 @@ Or download for desktop:
 ## How to Play
 
 - WASD or arrow keys to move/jump (or tap and double-tap on touchscreen)
-- Touch a green arrow to shift gravity to its direction
+- Touch a green arrow to shift the direction of gravity
 - Reach the blue portal to advance to the next level
-- Spikes or falling out of bounds restart the current level
+- Hitting spikes or falling out of bounds restarts the current level
 
 ## Features
 
-- 15 handcrafted levels with a gradual difficulty curve
+- 15 handcrafted levels with an increasing difficulty curve
 - 4-direction gravity: floors, walls, and ceilings
 - Momentum-based jumps and mid-air gravity shifts
 - Spikes, gaps, and platforming hazards
