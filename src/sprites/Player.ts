@@ -16,6 +16,9 @@ type Cursors = Record<
 
 const PLAYER_VELOCITY = 250;
 const LAND_MIN_AIRBORNE_MS = 150;
+const LAND_SQUASH_SCALE_X = 1.1;
+const LAND_SQUASH_SCALE_Y = 0.85;
+const LAND_SQUASH_DURATION_MS = 80;
 const DUST_FEET_OFFSET_PX = 7;
 const WALK_THRESHOLD_PX = 4;
 const DECELERATION_DISTANCE_PX = 40;
@@ -56,6 +59,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private wasOnGround = true;
   private airborneSince = 0;
   private gravityTween?: Phaser.Tweens.Tween;
+  private squashTween?: Phaser.Tweens.Tween;
+  private squashBody?: {
+    width: number;
+    height: number;
+    anchorX: number;
+    anchorY: number;
+  };
   private walkTarget: { x: number; y: number } | null = null;
 
   constructor(
@@ -104,6 +114,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       return;
     }
 
+    this.stopSquash();
     this.applyGravityPhysics(newDirection);
     this.stopGravityTween();
 
@@ -296,11 +307,94 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     };
   }
 
+  /**
+   * Squash the sprite on landing
+   */
+  private squash() {
+    if (this.isShifting || this.gravityTween) {
+      return;
+    }
+
+    this.stopSquash();
+
+    // Arcade bodies scale with their sprite,
+    // so pin the body's world size and position while the visual scale animates
+    const { width, height } = this.body;
+    this.squashBody = {
+      width,
+      height,
+      anchorX: this.body.offset.x - this.displayOriginX,
+      anchorY: this.body.offset.y - this.displayOriginY,
+    };
+
+    this.setScale(LAND_SQUASH_SCALE_X, LAND_SQUASH_SCALE_Y);
+    this.syncSquashBody();
+
+    this.squashTween = this.scene.tweens.add({
+      targets: this,
+      scaleX: 1,
+      scaleY: 1,
+      duration: LAND_SQUASH_DURATION_MS,
+      ease: 'Quad.Out',
+      onUpdate: () => {
+        this.syncSquashBody();
+      },
+      onComplete: () => {
+        this.squashTween = undefined;
+        this.restoreSquashBody();
+      },
+    });
+  }
+
+  private stopSquash() {
+    if (!this.squashBody) {
+      return;
+    }
+
+    this.squashTween?.stop();
+    this.squashTween = undefined;
+    this.setScale(1);
+    this.restoreSquashBody();
+  }
+
+  /**
+   * Keep the physics body at its pre-squash size and position
+   */
+  private syncSquashBody() {
+    const body = this.squashBody;
+    if (!body) {
+      return;
+    }
+
+    const scaleX = Math.abs(this.scaleX);
+    const scaleY = Math.abs(this.scaleY);
+    this.body.setSize(body.width / scaleX, body.height / scaleY, false);
+    this.body.setOffset(
+      this.displayOriginX + body.anchorX / scaleX,
+      this.displayOriginY + body.anchorY / scaleY,
+    );
+  }
+
+  private restoreSquashBody() {
+    const body = this.squashBody;
+    if (!body) {
+      return;
+    }
+
+    this.squashBody = undefined;
+    this.body.setSize(body.width, body.height, false);
+    this.body.setOffset(
+      this.displayOriginX + body.anchorX,
+      this.displayOriginY + body.anchorY,
+    );
+  }
+
   jump() {
     if (!this.isOnGround()) {
       return;
     }
 
+    this.stopSquash();
     this.scene.sound.play(KEY.AUDIO.JUMP, { volume: 0.8 });
     this.emitDust();
 
@@ -516,6 +610,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       ) {
         this.scene.sound.play(KEY.AUDIO.LAND, { volume: 0.6 });
         this.emitDust();
+        this.squash();
       }
     } else {
       this.anims.stop();
