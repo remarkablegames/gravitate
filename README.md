@@ -11,6 +11,8 @@
 
 Play in your browser:
 
+- [Wavedash](https://wavedash.com/games/gravitate)
+- [itch.io](https://remarkablegames.itch.io/gravitate)
 - [remarkablegames](https://remarkablegames.org/gravitate/)
 
 Or download for desktop:
