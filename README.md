@@ -7,7 +7,7 @@
 [![release](https://img.shields.io/github/v/release/remarkablegames/gravitate)](https://github.com/remarkablegames/gravitate/releases)
 [![build](https://github.com/remarkablegames/gravitate/actions/workflows/build.yml/badge.svg)](https://github.com/remarkablegames/gravitate/actions/workflows/build.yml)
 
-🧲 Guide a robot through platformer puzzles by shifting gravity in four directions. Roll across walls, walk on ceilings, and use the room itself to find your way out.
+🧲 **Gravitate** is a puzzle platformer where you shift gravity to escape each room. Guide the robot across walls and ceilings, and use the room itself to find your way out.
 
 Play in your browser:
 
@@ -21,12 +21,14 @@ Or download for desktop:
 - [macOS](https://github.com/remarkablegames/gravitate/releases/latest/download/macos.zip)
 - [Linux](https://github.com/remarkablegames/gravitate/releases/latest/download/linux.zip)
 
-Watch the [YouTube video](https://youtu.be/_Fzkyhq8CPY).
+Read the [blog post](https://remarkablegames.org/posts/gravitate/) or watch the [YouTube video](https://youtu.be/_Fzkyhq8CPY).
 
 ## How to Play
 
-- WASD or arrow keys to move/jump (or tap and double-tap on touchscreen)
-- Touch a green arrow to shift the direction of gravity
+- Control with keyboard or touchscreen:
+  - **Keyboard:** WASD or arrow keys to move; W or ↑ to jump
+  - **Touchscreen:** tap to walk and double-tap to jump
+- Touch a green arrow to change the gravity direction
 - Reach the blue portal to advance to the next level
 - Hitting spikes or falling out of bounds restarts the current level
 
@@ -35,7 +37,7 @@ Watch the [YouTube video](https://youtu.be/_Fzkyhq8CPY).
 - 15 handcrafted levels with an increasing difficulty curve
 - 4-direction gravity: floors, walls, and ceilings
 - Momentum-based jumps and mid-air gravity shifts
-- Spikes, gaps, and platforming hazards
+- Spikes, gaps, and other hazards
 - 3 sci-fi music tracks and sound effects
 - Pixel-art visuals and responsive scaling
 
