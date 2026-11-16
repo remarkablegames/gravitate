@@ -113,8 +113,14 @@ Start a level by appending `?level=<number>` to the URL:
 http://localhost:5173/?level=0
 ```
 
-View cover image by appending `?cover` to the URL:
+View 1920x1080 cover image by appending `?cover`:
 
 ```
 http://localhost:5173/?cover
+```
+
+View 630×500 cover thumbnail by appending `?cover=small`:
+
+```
+http://localhost:5173/?cover=small
 ```
