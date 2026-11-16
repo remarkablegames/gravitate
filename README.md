@@ -21,6 +21,8 @@ Or download for desktop:
 - [macOS](https://github.com/remarkablegames/gravitate/releases/latest/download/macos.zip)
 - [Linux](https://github.com/remarkablegames/gravitate/releases/latest/download/linux.zip)
 
+Watch the [YouTube video](https://youtu.be/_Fzkyhq8CPY).
+
 ## How to Play
 
 - WASD or arrow keys to move/jump (or tap and double-tap on touchscreen)
