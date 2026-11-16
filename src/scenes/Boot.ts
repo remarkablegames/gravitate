@@ -3,14 +3,13 @@ import { Scene } from 'phaser';
 import { KEY, LEVELS, RESOLUTION } from '../constants';
 
 export class Boot extends Scene {
-  private readonly isCover = new URLSearchParams(window.location.search).has(
-    'cover',
-  );
-  private readonly level =
-    Number(new URLSearchParams(window.location.search).get('level')) || 0;
+  private readonly searchParams = new URLSearchParams(window.location.search);
+  private readonly level: number;
 
   constructor() {
     super(KEY.SCENE.BOOT);
+
+    this.level = Number(this.searchParams.get('level')) || 0;
   }
 
   preload() {
@@ -23,7 +22,7 @@ export class Boot extends Scene {
     this.load.image(KEY.IMAGE.TILES, 'tilemaps/tileset.png');
 
     // The cover only needs the shared sprites and tileset
-    if (this.isCover) {
+    if (this.searchParams.has('cover')) {
       return;
     }
 
@@ -43,9 +42,13 @@ export class Boot extends Scene {
   }
 
   create() {
-    if (this.isCover) {
-      // Render the cover at a true 16:9 resolution without changing the game config
-      this.scale.setGameSize(RESOLUTION.COVER.WIDTH, RESOLUTION.COVER.HEIGHT);
+    if (this.searchParams.has('cover')) {
+      // Render the cover at a responsive resolution
+      const { WIDTH, HEIGHT } =
+        this.searchParams.get('cover') === 'small'
+          ? RESOLUTION.COVER.SMALL
+          : RESOLUTION.COVER.LARGE;
+      this.scale.setGameSize(WIDTH, HEIGHT);
       this.scene.start(KEY.SCENE.COVER);
       return;
     }

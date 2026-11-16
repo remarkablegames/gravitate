@@ -2,11 +2,10 @@ import Phaser from 'phaser';
 
 import { KEY, RESOLUTION } from '../constants';
 
-const { WIDTH, HEIGHT } = RESOLUTION.COVER;
+const BASE_WIDTH = RESOLUTION.COVER.LARGE.WIDTH;
 const TILE_SIZE = 16;
 const FLOOR_SCALE = 8;
 const FLOOR_HEIGHT = TILE_SIZE * FLOOR_SCALE;
-const FLOOR_TOP = HEIGHT - FLOOR_HEIGHT;
 const PLAYER_SCALE = 14;
 const PORTAL_SCALE = 8;
 const PORTAL_SIZE = TILE_SIZE * PORTAL_SCALE;
@@ -25,6 +24,7 @@ const FRAME = {
   PORTAL_TOP_RIGHT: 31,
   PORTAL_BOTTOM_LEFT: 48,
   PORTAL_BOTTOM_RIGHT: 49,
+  SPIKE: 66,
 } as const;
 
 const PORTAL_TILES = [
@@ -33,20 +33,6 @@ const PORTAL_TILES = [
   { frame: FRAME.PORTAL_BOTTOM_LEFT, column: 0, row: 1 },
   { frame: FRAME.PORTAL_BOTTOM_RIGHT, column: 1, row: 1 },
 ] as const;
-
-const DEPTH = {
-  STARS: 1,
-  GRID: 2,
-  GLOW: 3,
-  FLOOR: 10,
-  SHADOW: 15,
-  PORTAL_GLOW: 16,
-  PORTAL: 20,
-  PLAYER: 30,
-  ARROW: 30,
-  TEXT: 40,
-  VIGNETTE: 50,
-} as const;
 
 const COLOR = {
   BACKGROUND: 0x0f131c,
@@ -67,10 +53,11 @@ const TEXTURE = {
 const FONT = 'monospace';
 
 /**
- * 16:9 cover art built from the game's own tileset and sprites
- * Open the game with `?cover` to render it
+ * Cover art built from the game's own tileset and sprites
  */
 export class Cover extends Phaser.Scene {
+  private isSmall = false;
+
   constructor() {
     super(KEY.SCENE.COVER);
   }
@@ -80,27 +67,44 @@ export class Cover extends Phaser.Scene {
 
     this.cameras.main.setBackgroundColor(COLOR.BACKGROUND);
 
-    this.addStars();
-    this.addGrid();
-    this.addGlow();
+    const width = this.scale.width;
+    const height = this.scale.height;
+    const scale = width / BASE_WIDTH;
+    const isSmall = (this.isSmall = scale < 1);
+    const textScale = isSmall ? scale * 1.5 : scale;
+    const playerBoost = isSmall ? 2 : 1;
+    const floorHeight = FLOOR_HEIGHT * scale;
+    const floorTop = height - floorHeight;
 
-    this.addFloor();
+    this.addStars(scale, width, floorTop);
+    this.addGrid(scale, width, floorTop);
+    this.addGlow(scale, width, height);
 
-    const portalX = 1690;
-    const playerX = 1380;
+    this.addFloor(scale, width, floorTop);
 
-    this.addPortal(portalX, FLOOR_TOP);
-    this.addPlayer(playerX, FLOOR_TOP);
-    this.addArrow(playerX, 590);
-    this.addText();
+    const portalX = isSmall ? width * 0.85 : 1690 * scale;
+    const playerX = isSmall ? width / 2 : 1380 * scale;
 
-    this.addVignette();
+    this.addPortal(isSmall ? 0.6 : scale, portalX, floorTop);
+    this.addPlayer(scale, playerX, floorTop, playerBoost);
+
+    if (isSmall) {
+      const spikeSize = PORTAL_SIZE * scale;
+      this.add
+        .image(playerX - spikeSize - 30, floorTop, KEY.IMAGE.TILES, FRAME.SPIKE)
+        .setOrigin(1)
+        .setScale(PORTAL_SCALE * scale * 1.5);
+    }
+
+    this.addArrow(scale, playerX, isSmall ? 770 * scale : 590 * scale);
+    this.addText(textScale, scale);
+
+    this.addVignette(scale, width, height);
   }
 
   /**
-   * Reuse the existing tileset image by registering 16x16 frames on its
-   * texture at runtime. This keeps a single image in memory instead of loading
-   * the tileset again under a cover-specific key.
+   * Reuse the existing tileset image by registering 16x16 frames on its texture at runtime
+   * This keeps a single image in memory instead of loading the tileset again under a cover-specific key
    */
   private addTileFrames() {
     const texture = this.textures.get(KEY.IMAGE.TILES);
@@ -126,47 +130,49 @@ export class Cover extends Phaser.Scene {
     }
   }
 
-  private addStars() {
-    const stars = this.add.graphics().setDepth(DEPTH.STARS);
+  private addStars(scale: number, width: number, floorTop: number) {
+    const stars = this.add.graphics();
     const random = new Phaser.Math.RandomDataGenerator(['gravitate-cover']);
 
     for (let index = 0; index < 90; index++) {
       stars.fillStyle(COLOR.ACCENT, random.realInRange(0.08, 0.3));
       stars.fillCircle(
-        random.between(0, WIDTH),
-        random.between(0, FLOOR_TOP - 20),
-        random.pick([1, 1, 1, 2]),
+        random.between(0, width),
+        random.between(0, floorTop - 20 * scale),
+        random.pick([1, 1, 1, 2]) * scale,
       );
     }
   }
 
-  private addGrid() {
-    const grid = this.add.graphics().setDepth(DEPTH.GRID);
+  private addGrid(scale: number, width: number, floorTop: number) {
+    const grid = this.add.graphics();
 
-    grid.lineStyle(2, 0x5f829c, 0.08);
+    grid.lineStyle(Math.max(1, 2 * scale), 0x5f829c, 0.08);
 
-    for (let x = 0; x <= WIDTH; x += 64) {
-      grid.lineBetween(x, 0, x, FLOOR_TOP);
+    const step = 64 * scale;
+
+    for (let x = 0; x <= width; x += step) {
+      grid.lineBetween(x, 0, x, floorTop);
     }
 
-    for (let y = 0; y <= FLOOR_TOP; y += 64) {
-      grid.lineBetween(0, y, WIDTH, y);
+    for (let y = 0; y <= floorTop; y += step) {
+      grid.lineBetween(0, y, width, y);
     }
   }
 
-  private addGlow() {
+  private addGlow(scale: number, width: number, height: number) {
     if (!this.textures.exists(TEXTURE.GLOW)) {
-      const texture = this.textures.createCanvas(TEXTURE.GLOW, WIDTH, HEIGHT);
+      const texture = this.textures.createCanvas(TEXTURE.GLOW, width, height);
 
       if (texture) {
         const context = texture.getContext();
         const gradient = context.createRadialGradient(
-          1430,
-          800,
+          1430 * scale,
+          800 * scale,
           0,
-          1430,
-          800,
-          900,
+          1430 * scale,
+          800 * scale,
+          900 * scale,
         );
 
         gradient.addColorStop(0, 'rgba(74, 244, 145, 0.2)');
@@ -174,16 +180,17 @@ export class Cover extends Phaser.Scene {
         gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
         context.fillStyle = gradient;
-        context.fillRect(0, 0, WIDTH, HEIGHT);
+        context.fillRect(0, 0, width, height);
         texture.refresh();
       }
     }
 
-    this.add.image(WIDTH / 2, HEIGHT / 2, TEXTURE.GLOW).setDepth(DEPTH.GLOW);
+    this.add.image(width / 2, height / 2, TEXTURE.GLOW);
   }
 
-  private addFloor() {
-    const columns = Math.ceil(WIDTH / FLOOR_HEIGHT);
+  private addFloor(scale: number, width: number, floorTop: number) {
+    const floorHeight = FLOOR_HEIGHT * scale;
+    const columns = Math.ceil(width / floorHeight);
 
     for (let column = 0; column < columns; column++) {
       const frame =
@@ -194,40 +201,44 @@ export class Cover extends Phaser.Scene {
             : FRAME.FLOOR_MIDDLE;
 
       this.add
-        .image(column * FLOOR_HEIGHT, FLOOR_TOP, KEY.IMAGE.TILES, frame)
+        .image(column * floorHeight, floorTop, KEY.IMAGE.TILES, frame)
         .setOrigin(0)
-        .setScale(FLOOR_SCALE)
-        .setDepth(DEPTH.FLOOR);
+        .setScale(FLOOR_SCALE * scale);
     }
   }
 
-  private addPortal(centerX: number, bottomY: number) {
-    const left = centerX - PORTAL_SIZE;
-    const top = bottomY - PORTAL_SIZE * 2;
-    const centerY = top + PORTAL_SIZE;
+  private addPortal(scale: number, centerX: number, bottomY: number) {
+    const portalSize = PORTAL_SIZE * scale;
+    const left = centerX - portalSize;
+    const top = bottomY - portalSize * 2;
+    const centerY = top + portalSize;
 
-    this.add
-      .ellipse(centerX, bottomY, 260, 30, COLOR.SHADOW, 0.4)
-      .setDepth(DEPTH.SHADOW);
+    this.add.ellipse(
+      centerX,
+      bottomY,
+      260 * scale,
+      30 * scale,
+      COLOR.SHADOW,
+      0.4,
+    );
 
-    this.addPortalGlow(centerX, centerY);
+    this.addPortalGlow(scale, centerX, centerY);
 
     for (const tile of PORTAL_TILES) {
       this.add
         .image(
-          left + tile.column * PORTAL_SIZE,
-          top + tile.row * PORTAL_SIZE,
+          left + tile.column * portalSize,
+          top + tile.row * portalSize,
           KEY.IMAGE.TILES,
           tile.frame,
         )
         .setOrigin(0)
-        .setScale(PORTAL_SCALE)
-        .setDepth(DEPTH.PORTAL);
+        .setScale(PORTAL_SCALE * scale);
     }
   }
 
-  private addPortalGlow(centerX: number, centerY: number) {
-    const size = 512;
+  private addPortalGlow(scale: number, centerX: number, centerY: number) {
+    const size = 512 * scale;
 
     if (!this.textures.exists(TEXTURE.PORTAL_GLOW)) {
       const texture = this.textures.createCanvas(
@@ -259,8 +270,7 @@ export class Cover extends Phaser.Scene {
 
     const glow = this.add
       .image(centerX, centerY, TEXTURE.PORTAL_GLOW)
-      .setBlendMode(Phaser.BlendModes.ADD)
-      .setDepth(DEPTH.PORTAL_GLOW);
+      .setBlendMode(Phaser.BlendModes.ADD);
 
     this.tweens.add({
       targets: glow,
@@ -273,32 +283,41 @@ export class Cover extends Phaser.Scene {
     });
   }
 
-  private addPlayer(x: number, floorY: number) {
-    // Frame 0's visible feet sit 7px below the sprite center.
-    const centerY = floorY - 7 * PLAYER_SCALE;
+  private addPlayer(
+    scale: number,
+    x: number,
+    floorY: number,
+    playerBoost: number,
+  ) {
+    // Frame 0's visible feet sit 7px below the sprite center
+    const playerScale = PLAYER_SCALE * scale * playerBoost;
+    const centerY = floorY - 7 * playerScale;
 
-    this.add
-      .ellipse(x, floorY, 150, 26, COLOR.SHADOW, 0.38)
-      .setDepth(DEPTH.SHADOW);
+    this.add.ellipse(
+      x,
+      floorY,
+      150 * scale * playerBoost,
+      26 * scale * playerBoost,
+      COLOR.SHADOW,
+      0.38,
+    );
 
     this.add
       .sprite(x, centerY, KEY.SPRITESHEET.PLAYER, 0)
-      .setScale(PLAYER_SCALE)
-      .setFlipX(true)
-      .setDepth(DEPTH.PLAYER);
+      .setScale(playerScale)
+      .setFlipX(true);
   }
 
-  private addArrow(x: number, y: number) {
+  private addArrow(scale: number, x: number, y: number) {
     const arrow = this.add
       .image(x, y, KEY.IMAGE.ARROW)
-      .setScale(ARROW_SCALE)
+      .setScale(ARROW_SCALE * scale * (this.isSmall ? 1.5 : 1))
       .setAngle(180)
-      .setAlpha(0.9)
-      .setDepth(DEPTH.ARROW);
+      .setAlpha(0.9);
 
     this.tweens.add({
       targets: arrow,
-      y: y - 14,
+      y: y - (this.isSmall ? 10 : 14) * scale,
       duration: 1400,
       ease: 'Sine.InOut',
       yoyo: true,
@@ -306,70 +325,111 @@ export class Cover extends Phaser.Scene {
     });
   }
 
-  private addText() {
-    // Accent bar above the kicker.
-    this.add
-      .rectangle(112, 142, 55, 5, COLOR.ACCENT)
-      .setOrigin(0, 0.5)
-      .setDepth(DEPTH.TEXT);
-
-    this.add
-      .text(112, 158, 'GRAVITY PUZZLE PLATFORMER', {
+  private addText(textScale: number, scale: number) {
+    if (this.isSmall) {
+      const titleStyle = {
         fontFamily: FONT,
-        fontSize: '26px',
-        color: COLOR.ACCENT_CSS,
-        letterSpacing: 8,
-      })
-      .setDepth(DEPTH.TEXT);
+        fontSize: 200 * textScale,
+        fontStyle: 'bold',
+        color: COLOR.TITLE,
+        stroke: '#0b0f16',
+        strokeThickness: 10 * textScale,
+        letterSpacing: 2 * textScale,
+        shadow: {
+          offsetX: 0,
+          offsetY: 0,
+          color: '#2fff7d',
+          blur: 24 * textScale,
+          stroke: true,
+          fill: true,
+        },
+      } satisfies Phaser.Types.GameObjects.Text.TextStyle;
+
+      this.add
+        .text(
+          this.scale.width / 2,
+          this.scale.height * 0.2,
+          'GRAVITATE',
+          titleStyle,
+        )
+        .setOrigin(0.5);
+
+      return;
+    }
+
+    // Accent bar above the kicker
+    this.add
+      .rectangle(112 * scale, 142 * scale, 55 * scale, 5 * scale, COLOR.ACCENT)
+      .setOrigin(0, 0.5);
+
+    this.add.text(112 * scale, 158 * scale, 'GRAVITY PUZZLE PLATFORMER', {
+      fontFamily: FONT,
+      fontSize: `${String(26 * textScale)}px`,
+      color: COLOR.ACCENT_CSS,
+      letterSpacing: 8 * textScale,
+    });
 
     const titleStyle = {
       fontFamily: FONT,
-      fontSize: '190px',
+      fontSize: `${String(190 * textScale)}px`,
       fontStyle: 'bold',
       color: COLOR.TITLE,
       stroke: '#0b0f16',
-      strokeThickness: 10,
-      letterSpacing: 2,
-      padding: { x: TITLE_PADDING, y: TITLE_PADDING },
+      strokeThickness: 10 * textScale,
+      letterSpacing: 2 * textScale,
+      padding: { x: TITLE_PADDING * scale, y: TITLE_PADDING * scale },
       shadow: {
         offsetX: 0,
         offsetY: 0,
         color: '#2fff7d',
-        blur: 24,
+        blur: 24 * textScale,
         stroke: true,
         fill: true,
       },
     } satisfies Phaser.Types.GameObjects.Text.TextStyle;
 
-    const titleStart = this.add
-      .text(110 - TITLE_PADDING, 210 - TITLE_PADDING, 'GRAV', titleStyle)
-      .setDepth(DEPTH.TEXT);
+    const titleStart = this.add.text(
+      (110 - TITLE_PADDING) * scale,
+      (210 - TITLE_PADDING) * scale,
+      'GRAV',
+      titleStyle,
+    );
 
-    this.add
-      .text(
-        titleStart.x + titleStart.width - TITLE_PADDING - TITLE_JOIN_OFFSET,
-        titleStart.y,
-        'ITATE',
-        {
-          ...titleStyle,
-          color: COLOR.ACCENT_CSS,
-        },
-      )
-      .setDepth(DEPTH.TEXT);
+    this.add.text(
+      titleStart.x +
+        titleStart.width -
+        TITLE_PADDING * scale -
+        TITLE_JOIN_OFFSET * scale,
+      titleStart.y,
+      'ITATE',
+      {
+        ...titleStyle,
+        color: COLOR.ACCENT_CSS,
+      },
+    );
 
-    this.add
-      .text(116, 490, 'SHIFT GRAVITY. FIND THE WAY OUT.', {
+    this.add.text(
+      116 * scale,
+      490 * scale,
+      'SHIFT GRAVITY. FIND THE WAY OUT.',
+      {
         fontFamily: FONT,
-        fontSize: '36px',
+        fontSize: `${String(36 * textScale)}px`,
         color: COLOR.TAGLINE,
-        letterSpacing: 4,
-      })
-      .setDepth(DEPTH.TEXT);
+        letterSpacing: 4 * textScale,
+      },
+    );
 
     this.add
-      .rectangle(118, 558, 810, 2, COLOR.ACCENT, 0.5)
-      .setOrigin(0, 0.5)
-      .setDepth(DEPTH.TEXT);
+      .rectangle(
+        118 * scale,
+        558 * scale,
+        810 * scale,
+        2 * scale,
+        COLOR.ACCENT,
+        0.5,
+      )
+      .setOrigin(0, 0.5);
 
     const features = [
       '15 HANDCRAFTED LEVELS',
@@ -379,55 +439,59 @@ export class Cover extends Phaser.Scene {
     ];
 
     features.forEach((feature, index) => {
-      const y = 640 + index * 58;
+      const y = (640 + index * 58) * scale;
 
       this.add
-        .rectangle(118, y + 13, 10, 10, COLOR.ACCENT)
-        .setOrigin(0.5)
-        .setDepth(DEPTH.TEXT);
+        .rectangle(
+          118 * scale,
+          y + 13 * scale,
+          10 * scale,
+          10 * scale,
+          COLOR.ACCENT,
+        )
+        .setOrigin(0.5);
 
-      this.add
-        .text(148, y, feature, {
-          fontFamily: FONT,
-          fontSize: '25px',
-          color: COLOR.MUTED,
-          letterSpacing: 3,
-        })
-        .setDepth(DEPTH.TEXT);
+      this.add.text(148 * scale, y, feature, {
+        fontFamily: FONT,
+        fontSize: `${String(25 * scale)}px`,
+        color: COLOR.MUTED,
+        letterSpacing: 3 * scale,
+      });
     });
   }
 
-  private addVignette() {
+  private addVignette(scale: number, width: number, height: number) {
     if (!this.textures.exists(TEXTURE.VIGNETTE)) {
       const texture = this.textures.createCanvas(
         TEXTURE.VIGNETTE,
-        WIDTH,
-        HEIGHT,
+        width,
+        height,
       );
 
       if (texture) {
         const context = texture.getContext();
         const gradient = context.createRadialGradient(
-          WIDTH / 2,
-          HEIGHT / 2,
-          HEIGHT * 0.35,
-          WIDTH / 2,
-          HEIGHT / 2,
-          HEIGHT * 0.92,
+          width / 2,
+          height / 2,
+          height * 0.35 * scale,
+          width / 2,
+          height / 2,
+          height * 0.92 * scale,
         );
 
         gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
         gradient.addColorStop(0.7, 'rgba(0, 0, 0, 0.18)');
-        gradient.addColorStop(1, 'rgba(0, 0, 0, 0.6)');
+        gradient.addColorStop(
+          1,
+          this.isSmall ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.6)',
+        );
 
         context.fillStyle = gradient;
-        context.fillRect(0, 0, WIDTH, HEIGHT);
+        context.fillRect(0, 0, width, height);
         texture.refresh();
       }
     }
 
-    this.add
-      .image(WIDTH / 2, HEIGHT / 2, TEXTURE.VIGNETTE)
-      .setDepth(DEPTH.VIGNETTE);
+    this.add.image(width / 2, height / 2, TEXTURE.VIGNETTE);
   }
 }
